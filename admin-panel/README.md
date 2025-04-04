@@ -28,8 +28,8 @@ This is an administrative dashboard for a video streaming platform similar to Ne
 ## Tech Stack
 - **Frontend**: Next.js with React
 - **Styling**: Tailwind CSS
-- **State Management**: React Context API / Redux
-- **Data Fetching**: SWR or React Query
+- **State Management**: React Context API
+- **Data Fetching**: React Query
 
 ## Getting Started
 

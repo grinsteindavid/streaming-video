@@ -1,0 +1,68 @@
+# Best Practices for Next.js & React Projects
+
+## Project Structure
+- `/app` - App router routes and layouts (Next.js 13+)
+- `/components` - Reusable UI components
+  - `/ui` - Basic UI elements
+  - `/layout` - Layout components
+  - `/features` - Feature-specific components
+- `/lib` - Utility functions and shared logic
+- `/hooks` - Custom React hooks
+- `/context` - React context providers
+- `/types` - TypeScript type definitions
+- `/public` - Static assets
+- `/styles` - Global styles and theme configuration
+- `/services` - API service layers and data fetching
+- `/config` - Application configuration
+
+## Next.js Practices
+- Use the App Router for new projects
+- Implement server components where possible
+- Use route handlers for API endpoints
+- Implement proper error boundaries
+- Optimize images with next/image
+- Use next/font for font optimization
+- Implement proper metadata for SEO
+
+## React Practices
+- Use functional components with hooks
+- Implement proper state management (Context API, Redux Toolkit, Zustand)
+- Create custom hooks for reusable logic
+- Implement proper error boundaries
+- Use React.memo for performance optimization
+- Implement proper prop validation
+
+## OOP Principles
+- Apply SOLID principles:
+  - Single Responsibility Principle
+  - Open/Closed Principle
+  - Liskov Substitution Principle
+  - Interface Segregation Principle
+  - Dependency Inversion Principle
+- Use composition over inheritance
+- Implement proper encapsulation
+- Create clear interfaces for components and services
+
+## Code Organization
+- Consistent file naming convention (kebab-case, PascalCase)
+- Co-locate related files (component, styles, tests)
+- Implement feature-based folder structure
+- Use barrel files (index.ts) for clean exports
+
+## Testing Strategy
+- Unit tests for utilities and hooks
+- Component tests with React Testing Library
+- E2E tests with Cypress or Playwright
+- Implement proper test coverage metrics
+
+## CI/CD
+- Implement workspace-aware CI/CD pipelines
+- Only build/test affected packages
+- Use proper caching strategies
+- Implement proper versioning strategy
+
+## Dependencies
+- Use workspace dependencies for internal packages
+- Hoist common dependencies to root
+- Implement strict versioning policies
+- Regular dependency audits and updates
