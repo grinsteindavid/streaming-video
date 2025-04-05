@@ -32,6 +32,42 @@
 - Use React.memo for performance optimization
 - Implement proper prop validation
 
+## Component Structure
+- Implement container components for business logic
+- Use presentational components for UI rendering
+- Separate concerns between data fetching/processing and presentation
+- Pass data to presentational components via props
+- Use custom hooks to abstract reusable logic
+- Follow composition pattern for component building
+- Implement proper prop drilling alternatives (Context, composition)
+- Keep components focused on a single responsibility
+- Use proper component memoization strategies
+
+## React Query Best Practices
+- Use QueryClient provider at application root
+- Implement proper query keys with array structure
+- Set appropriate staleTime and cacheTime for queries
+- Use query invalidation for data refetching
+- Implement optimistic updates for mutations
+- Handle loading and error states consistently
+- Use placeholderData or initialData for better UX
+- Implement query prefetching for anticipated data needs
+- Use dependent queries when queries depend on each other
+- Leverage query cancellation for abandoned requests
+
+## Mocking Best Practices
+- Use MSW (Mock Service Worker) for API mocking
+- Create consistent mock data structures
+- Implement realistic response delays
+- Test both success and error scenarios
+- Organize mocks by feature or resource type
+- Make mocks easily toggleable for development
+- Keep mock data close to production data shape
+- Use factories for generating dynamic mock data
+- Implement proper error simulation
+- Document mock API behavior for team reference
+
+
 ## OOP Principles
 - Apply SOLID principles:
   - Single Responsibility Principle
@@ -44,10 +80,19 @@
 - Create clear interfaces for components and services
 
 ## Code Organization
-- Consistent file naming convention (kebab-case, PascalCase)
-- Co-locate related files (component, styles, tests)
-- Implement feature-based folder structure
-- Use barrel files (index.ts) for clean exports
+- Consistent file naming convention (kebab-case for files, PascalCase for components)
+- Co-locate related files (component, styles, tests, stories) in the same directory
+- Implement feature-based folder structure with domain-driven boundaries
+- Use barrel files (index.ts) for clean exports and public APIs
+- Keep files under 300 lines of code when possible
+- Limit function/method length to 30-50 lines
+- Follow single responsibility principle for classes and components
+- Group related functionality into cohesive modules
+- Use meaningful directory names that reflect their purpose
+- Organize imports with external dependencies first, then internal modules
+- Implement consistent code formatting with tools like Prettier
+- Keep nesting depth to a maximum of 3-4 levels in component trees
+- Implement proper error boundaries
 
 ## Testing Strategy
 - Unit tests for utilities and hooks
