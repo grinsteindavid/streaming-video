@@ -111,3 +111,16 @@
 - Hoist common dependencies to root
 - Implement strict versioning policies
 - Regular dependency audits and updates
+
+
+## AI Agent Guidelines
+- Respond only to the specific request or query
+- Do not generate unrequested code or explanations
+- Maintain consistent formatting with the surrounding code
+- Respect the established project structure and conventions
+- Avoid making assumptions about requirements not explicitly stated
+- Do not add features beyond what was specifically requested
+- Keep responses concise and focused on the immediate task
+- Provide only the information needed to address the specific request
+- Respect the existing code style, naming conventions, and patterns
+- When uncertain about requirements, ask clarifying questions rather than guessing
