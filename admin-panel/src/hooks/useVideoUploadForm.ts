@@ -2,6 +2,7 @@
 
 import { useState, ChangeEvent } from 'react';
 import { VideoFormData } from '@/types/upload';
+import { useVideoUpload } from './useVideoUpload';
 
 export const useVideoUploadForm = (initialData?: Partial<VideoFormData>) => {
   const [formData, setFormData] = useState<VideoFormData>({
@@ -17,9 +18,17 @@ export const useVideoUploadForm = (initialData?: Partial<VideoFormData>) => {
     ...initialData
   });
 
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+
+  // Use our React Query-powered hook for uploads
+  const { 
+    uploadVideo, 
+    uploadProgress, 
+    isUploading,
+    isSuccess,
+    isError,
+    reset: resetUploadState 
+  } = useVideoUpload();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -73,55 +82,27 @@ export const useVideoUploadForm = (initialData?: Partial<VideoFormData>) => {
       isPublic: true
     });
     setThumbnailPreview(null);
-    setUploadProgress(0);
+    resetUploadState();
   };
 
   const submitForm = async () => {
     try {
-      setIsUploading(true);
+      // Use the real upload implementation from React Query
+      const success = await uploadVideo(formData);
       
-      // Simulate upload progress
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += 5;
-        if (progress > 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          setUploadProgress(100);
-          setTimeout(() => {
-            resetForm();
-            alert('Upload successful!');
-          }, 1000);
-        } else {
-          setUploadProgress(progress);
-        }
-      }, 200);
+      if (success && isSuccess) {
+        // Only reset the form on success
+        setTimeout(() => {
+          resetForm();
+          alert('Upload successful!');
+        }, 1000);
+      } else if (isError) {
+        alert('Upload failed. Please try again.');
+      }
       
-      // In real implementation:
-      // const formData = new FormData();
-      // for (const [key, value] of Object.entries(formData)) {
-      //   if (value instanceof File) {
-      //     formData.append(key, value);
-      //   } else if (Array.isArray(value)) {
-      //     formData.append(key, JSON.stringify(value));
-      //   } else if (value !== null && value !== undefined) {
-      //     formData.append(key, String(value));
-      //   }
-      // }
-      // const response = await fetch('/api/videos/upload', {
-      //   method: 'POST',
-      //   body: formData,
-      //   onUploadProgress: (progressEvent) => {
-      //     const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-      //     setUploadProgress(percentCompleted);
-      //   }
-      // });
-      // const data = await response.json();
-      
-      return true;
+      return success;
     } catch (error) {
       console.error('Upload failed:', error);
-      setIsUploading(false);
       alert('Upload failed. Please try again.');
       return false;
     }

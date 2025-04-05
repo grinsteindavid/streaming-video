@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { QueryProvider } from "@/contexts/QueryProvider";
+import { MSWProvider } from './providers/MSWProvider';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,7 +29,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        {/* Initialize MSW for API mocking in development */}
+        <MSWProvider />
+        <QueryProvider>
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );
