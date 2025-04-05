@@ -38,6 +38,30 @@ This is the landing page for a video streaming platform similar to Prime Video. 
 - **Package Manager**: pnpm
 - **TypeScript**: Yes
 
+## UX/UI Best Practices for Video Streaming Landing Page
+### Core Elements
+Hero Banner: Dynamic carousel with auto-playing video previews and direct CTA buttons
+Content Rows: Horizontal-scrolling categories with varying card sizes for content hierarchy
+Smart Navigation: Minimal sticky header with intelligent search functionality
+Personalized Experience: "Continue Watching" section always first for returning users
+
+### Card Design
+Progressive Disclosure: Minimal info by default, expanding on hover with ratings, duration, and quality badges
+Visual Indicators: Progress bars for partially watched content and "New" badges for recent additions
+Quick Actions: One-click play and add-to-watchlist buttons directly on content cards
+
+### Responsive Considerations
+Adaptive Layouts: Seamless experience across desktop, tablet, and mobile devices
+Touch Optimization: Larger tap targets on mobile with bottom navigation for thumb accessibility
+Performance Focus: Lazy loading content with skeleton screens during data fetching
+
+### Accessibility
+Clear Focus States: Visible keyboard navigation indicators following brand colors
+High Contrast Text: Minimum 4.5:1 ratio against backgrounds for readability
+Reduced Motion Option: Settings for users with motion sensitivity
+
+This streamlined approach prioritizes user engagement while maintaining performance across all devices and accessibility standards.
+
 ## Getting Started
 
 ### Prerequisites
@@ -46,8 +70,8 @@ This is the landing page for a video streaming platform similar to Prime Video. 
 
 ### Installation
 ```bash
-# Navigate to the admin-panel directory
-cd admin-panel
+# Navigate to the landing-page directory
+cd landing-page
 
 # Install dependencies
 npm install
@@ -61,7 +85,8 @@ npm run dev
 # or
 yarn dev
 # or
-pnpm de
+pnpm dev
+``` 
 
 ### Environment Variables
 Create a `.env.local` file in the root directory with the following variables:
