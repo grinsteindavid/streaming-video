@@ -1,102 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { FilterOptions, SortOption } from './SearchFilters';
 import SearchFilters from './SearchFilters';
 import ContentList from './ContentList';
 import Link from 'next/link';
+import { useVideos } from '@/hooks/useVideos';
+import { VideoFilterParams, VideoStatus } from '@/types/api';
 
-interface VideoContent {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  uploadDate: string;
-  duration: string;
-  categories: string[];
-  tags: string[];
-  status: 'published' | 'draft' | 'archived';
-  views: number;
-}
 
 export default function ContentLibrary() {
-  // Using the initial mock data for content demonstration
-  const [videos] = useState<VideoContent[]>([
-    {
-      id: '1',
-      title: 'Getting Started with React',
-      description: 'Learn the basics of React and build your first component',
-      thumbnail: 'https://images.unsplash.com/photo-1633356122102-3fe601e05bd2',
-      uploadDate: '2025-03-15T10:00:00Z',
-      duration: '12:34',
-      categories: ['Programming', 'Web Development'],
-      tags: ['react', 'javascript', 'frontend'],
-      status: 'published',
-      views: 12500
-    },
-    {
-      id: '2',
-      title: 'Advanced CSS Techniques',
-      description: 'Explore advanced CSS features and techniques for modern web development',
-      thumbnail: 'https://images.unsplash.com/photo-1587620962725-abab7fe55159',
-      uploadDate: '2025-03-18T14:30:00Z',
-      duration: '28:45',
-      categories: ['Web Development', 'Design'],
-      tags: ['css', 'web design', 'frontend'],
-      status: 'published',
-      views: 9800
-    },
-    {
-      id: '3',
-      title: 'Building RESTful APIs',
-      description: 'Learn how to design and implement RESTful APIs for your applications',
-      thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c',
-      uploadDate: '2025-03-20T09:15:00Z',
-      duration: '45:12',
-      categories: ['Backend', 'API Development'],
-      tags: ['api', 'rest', 'backend'],
-      status: 'draft',
-      views: 0
-    },
-    {
-      id: '4',
-      title: 'Introduction to TypeScript',
-      description: 'Get started with TypeScript and learn how it improves JavaScript development',
-      thumbnail: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8',
-      uploadDate: '2025-03-25T16:20:00Z',
-      duration: '33:18',
-      categories: ['Programming', 'Web Development'],
-      tags: ['typescript', 'javascript', 'programming'],
-      status: 'published',
-      views: 7600
-    },
-    {
-      id: '5',
-      title: 'Database Design Fundamentals',
-      description: 'Learn about database design principles and best practices',
-      thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71',
-      uploadDate: '2025-03-28T11:45:00Z',
-      duration: '52:40',
-      categories: ['Database', 'Backend'],
-      tags: ['database', 'sql', 'design'],
-      status: 'archived',
-      views: 15200
-    },
-    {
-      id: '6',
-      title: 'UX Design Principles',
-      description: 'Explore key principles of user experience design for digital products',
-      thumbnail: 'https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2',
-      uploadDate: '2025-04-01T13:10:00Z',
-      duration: '41:56',
-      categories: ['Design', 'UX'],
-      tags: ['ux', 'design', 'user experience'],
-      status: 'published',
-      views: 8900
-    }
-  ]);
-  
-  // State for search, filters, and sorting for the new components
+  // State for pagination, search, filters, and sorting
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<FilterOptions>({
     categories: [],
@@ -108,19 +24,79 @@ export default function ContentLibrary() {
   });
   const [sortOption, setSortOption] = useState<SortOption>('newest');
   
-  // No need to extract categories here as it's handled by the SearchFilters component
+  // Convert UI filters to API filter params
+  const apiFilters = useMemo<VideoFilterParams>(() => {
+    const filterParams: VideoFilterParams = {};
+    
+    // Add search query
+    if (searchQuery) {
+      filterParams.search = searchQuery;
+    }
+    
+    // Convert statuses from FilterOptions to VideoStatus
+    if (filters.status && filters.status.length > 0) {
+      // Just use the first status for simplicity
+      filterParams.status = filters.status[0] as VideoStatus;
+    }
+    
+    // Add categories
+    if (filters.categories && filters.categories.length > 0) {
+      filterParams.categories = filters.categories;
+    }
+    
+    // Add date range
+    if (filters.uploadDateRange?.from) {
+      filterParams.startDate = filters.uploadDateRange.from;
+    }
+    if (filters.uploadDateRange?.to) {
+      filterParams.endDate = filters.uploadDateRange.to;
+    }
+    
+    return filterParams;
+  }, [searchQuery, filters]);
+  
+  // Add sort parameters
+  const sortParams = useMemo(() => {
+    switch (sortOption) {
+      case 'newest':
+        return { sort: 'upload_date', order: 'desc' };
+      case 'oldest':
+        return { sort: 'upload_date', order: 'asc' };
+      case 'popular':
+        return { sort: 'views', order: 'desc' };
+      case 'name_asc':
+        return { sort: 'title', order: 'asc' };
+      case 'name_desc':
+        return { sort: 'title', order: 'desc' };
+      default:
+        return { sort: 'upload_date', order: 'desc' };
+    }
+  }, [sortOption]);
+  
+  // Use React Query hook to fetch videos with pagination and filtering
+  const { data, isLoading, error } = useVideos(
+    { page: currentPage, pageSize },
+    { ...apiFilters, ...sortParams }
+  );
   
   // Event handlers for search, filter, and sort actions
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+    setCurrentPage(1); // Reset to first page on new search
   };
   
   const handleFilter = (newFilters: FilterOptions) => {
     setFilters(newFilters);
+    setCurrentPage(1); // Reset to first page on new filter
   };
   
   const handleSort = (newSortOption: SortOption) => {
     setSortOption(newSortOption);
+  };
+  
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -161,9 +137,15 @@ export default function ContentLibrary() {
       
       {/* Enhanced content list with modern UI */}
       <ContentList 
+        videos={data?.data || []}
+        isLoading={isLoading}
+        error={error}
         searchQuery={searchQuery}
         filters={filters}
         sortOption={sortOption}
+        currentPage={currentPage}
+        totalPages={data?.totalPages || 1}
+        onPageChange={handlePageChange}
       />
       
       {/* Stats summary at the bottom */}
@@ -173,27 +155,29 @@ export default function ContentLibrary() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <p className="text-sm text-gray-500 dark:text-gray-400">Total Videos</p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-white">{videos.length}</p>
+            <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+              {isLoading ? '...' : data?.total || 0}
+            </p>
           </div>
           
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <p className="text-sm text-gray-500 dark:text-gray-400">Published</p>
             <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
-              {videos.filter(v => v.status === 'published').length}
+              {isLoading ? '...' : data?.data.filter(v => v.status === 'published').length || 0}
             </p>
           </div>
           
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <p className="text-sm text-gray-500 dark:text-gray-400">Drafts</p>
             <p className="text-2xl font-semibold text-yellow-600 dark:text-yellow-400">
-              {videos.filter(v => v.status === 'draft').length}
+              {isLoading ? '...' : data?.data.filter(v => v.status === 'draft').length || 0}
             </p>
           </div>
           
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <p className="text-sm text-gray-500 dark:text-gray-400">Total Views</p>
             <p className="text-2xl font-semibold text-blue-600 dark:text-blue-400">
-              {videos.reduce((sum, video) => sum + video.views, 0).toLocaleString()}
+              {isLoading ? '...' : data?.data.reduce((sum, video) => sum + (video.stats?.views || 0), 0).toLocaleString() || 0}
             </p>
           </div>
         </div>

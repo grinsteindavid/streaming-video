@@ -1,197 +1,172 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import ContentCard from './ContentCard';
-import { FilterOptions, SortOption } from './SearchFilters';
+import { VideoResponse } from '@/types/api';
 
-// Mock data interface
-interface VideoContent {
-  id: string;
-  title: string;
-  thumbnail: string;
-  views: number;
-  likes: number;
-  uploadDate: string;
-  duration: string;
-  status: 'published' | 'draft';
-  categories: string[];
+// Interface for pagination props
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
-interface ContentListProps {
-  searchQuery: string;
-  filters: FilterOptions;
-  sortOption: SortOption;
+interface ContentListProps extends PaginationProps {
+  videos: VideoResponse[];
+  isLoading: boolean;
+  error: Error | null;
 }
 
-export default function ContentList({ searchQuery, filters, sortOption }: ContentListProps) {
-  const [videos, setVideos] = useState<VideoContent[]>([]);
-  const [filteredVideos, setFilteredVideos] = useState<VideoContent[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export default function ContentList({ 
+  videos, 
+  isLoading, 
+  error, 
+  currentPage, 
+  totalPages, 
+  onPageChange 
+}: ContentListProps) {
+  // Helper function to format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    }).format(date);
+  };
+  
+  // Helper function to format duration from seconds
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
-  // Mock data fetching
-  useEffect(() => {
-    const fetchVideos = async () => {
-      setIsLoading(true);
-      try {
-        // In a real app, this would be an API call
-        // const response = await fetch('/api/videos');
-        // const data = await response.json();
-        // setVideos(data);
-        
-        // Mock data
-        setTimeout(() => {
-          const mockVideos: VideoContent[] = Array.from({ length: 12 }, (_, i) => ({
-            id: `video-${i + 1}`,
-            title: i % 3 === 0 
-              ? 'Getting Started with Next.js and React - Build a Modern Web Application'
-              : i % 3 === 1 
-                ? 'Advanced TypeScript Features Every Developer Should Know'
-                : 'Building Responsive UIs with Tailwind CSS',
-            thumbnail: `https://picsum.photos/seed/${i + 1}/800/450`,
-            views: Math.floor(Math.random() * 500000),
-            likes: Math.floor(Math.random() * 50000),
-            uploadDate: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString(),
-            duration: `${Math.floor(Math.random() * 10) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
-            status: i % 5 === 0 ? 'draft' : 'published',
-            categories: [
-              ['Web Development', 'Programming', 'Next.js', 'React'][Math.floor(Math.random() * 4)],
-              ['Design', 'UI/UX', 'CSS', 'Tailwind'][Math.floor(Math.random() * 4)],
-              ['DevOps', 'Productivity', 'Mobile Development'][Math.floor(Math.random() * 3)]
-            ].filter((_, index) => index < Math.floor(Math.random() * 3) + 1)
-          }));
-          
-          setVideos(mockVideos);
-          setIsLoading(false);
-        }, 1000);
-      } catch (error) {
-        console.error('Error fetching videos:', error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchVideos();
-  }, []);
-
-  // Apply search, filters, and sorting
-  useEffect(() => {
-    if (videos.length === 0) return;
-
-    let result = [...videos];
-
-    // Apply search
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(video => 
-        video.title.toLowerCase().includes(query) ||
-        video.categories.some(category => category.toLowerCase().includes(query))
+  // Pagination UI controls
+  const renderPagination = useMemo(() => {
+    const pages = [];
+    const displayedPages = 5; // Number of page buttons to show
+    
+    let startPage = Math.max(1, currentPage - Math.floor(displayedPages / 2));
+    const endPage = Math.min(totalPages, startPage + displayedPages - 1);
+    
+    // Adjust if we're near the end
+    if (endPage - startPage + 1 < displayedPages) {
+      startPage = Math.max(1, endPage - displayedPages + 1);
+    }
+    
+    // Previous button
+    pages.push(
+      <button 
+        key="prev" 
+        onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+        disabled={currentPage === 1}
+        className="px-3 py-2 rounded-md text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+      >
+        Previous
+      </button>
+    );
+    
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => onPageChange(i)}
+          className={`px-3 py-2 rounded-md text-sm font-medium ${
+            currentPage === i 
+              ? 'bg-blue-500 text-white' 
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+          } transition-colors`}
+        >
+          {i}
+        </button>
       );
     }
-
-    // Apply category filters
-    if (filters.categories.length > 0) {
-      result = result.filter(video => 
-        video.categories.some(category => filters.categories.includes(category))
-      );
-    }
-
-    // Apply date range filters
-    if (filters.uploadDateRange.from) {
-      const fromDate = new Date(filters.uploadDateRange.from);
-      result = result.filter(video => new Date(video.uploadDate) >= fromDate);
-    }
-
-    if (filters.uploadDateRange.to) {
-      const toDate = new Date(filters.uploadDateRange.to);
-      toDate.setHours(23, 59, 59, 999); // End of day
-      result = result.filter(video => new Date(video.uploadDate) <= toDate);
-    }
-
-    // Apply status filters
-    if (filters.status.length > 0 && filters.status.length < 2) {
-      result = result.filter(video => filters.status.includes(video.status));
-    }
-
-    // Apply sorting
-    result.sort((a, b) => {
-      switch (sortOption) {
-        case 'newest':
-          return new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime();
-        case 'oldest':
-          return new Date(a.uploadDate).getTime() - new Date(b.uploadDate).getTime();
-        case 'views-high':
-          return b.views - a.views;
-        case 'views-low':
-          return a.views - b.views;
-        case 'likes-high':
-          return b.likes - a.likes;
-        case 'likes-low':
-          return a.likes - b.likes;
-        default:
-          return 0;
-      }
-    });
-
-    setFilteredVideos(result);
-  }, [videos, searchQuery, filters, sortOption]);
-
-  if (isLoading) {
+    
+    // Next button
+    pages.push(
+      <button 
+        key="next" 
+        onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+        disabled={currentPage === totalPages}
+        className="px-3 py-2 rounded-md text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+      >
+        Next
+      </button>
+    );
+    
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {Array.from({ length: 8 }).map((_, index) => (
-          <div key={index} className="bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden animate-pulse">
-            <div className="aspect-video bg-gray-300 dark:bg-gray-600"></div>
-            <div className="p-4 space-y-3">
-              <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
-              <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
-              <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/4"></div>
-            </div>
-          </div>
-        ))}
+      <div className="flex justify-center gap-2 mt-6">
+        {pages}
       </div>
     );
-  }
+  }, [currentPage, totalPages, onPageChange]);
 
-  if (filteredVideos.length === 0) {
+  // Show error state if there's an API error
+  if (error) {
     return (
-      <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
-        <svg
-          className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-        <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">No videos found</h3>
-        <p className="mt-1 text-gray-500 dark:text-gray-400">
-          Try adjusting your search or filter criteria.
-        </p>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div className="text-center py-10">
+          <div className="text-red-500 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Error Loading Content</h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{error.message || 'Failed to load videos. Please try again later.'}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {filteredVideos.map((video) => (
-        <ContentCard
-          key={video.id}
-          id={video.id}
-          title={video.title}
-          thumbnail={video.thumbnail}
-          views={video.views}
-          likes={video.likes}
-          uploadDate={video.uploadDate}
-          duration={video.duration}
-          status={video.status}
-          categories={video.categories}
-        />
-      ))}
+    <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+      {isLoading ? (
+        <div className="p-6">
+          <div className="animate-pulse space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="h-80 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : videos.length === 0 ? (
+        <div className="p-6 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+          </svg>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No videos found</h3>
+          <p className="text-gray-500 dark:text-gray-400">Try adjusting your search or filter criteria</p>
+        </div>
+      ) : (
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {videos.map(video => (
+              <ContentCard
+                key={video.id}
+                id={video.id}
+                title={video.title}
+                thumbnail={video.thumbnail_url || '/placeholder-image.jpg'}
+                viewCount={video.stats?.views || 0}
+                uploadDate={formatDate(video.upload_date)}
+                duration={video.duration ? formatDuration(video.duration) : '0:00'}
+                status={video.status}
+              />
+            ))}
+          </div>
+          
+          {/* Pagination controls */}
+          {totalPages > 1 && renderPagination}
+        </div>
+      )}
     </div>
   );
 }

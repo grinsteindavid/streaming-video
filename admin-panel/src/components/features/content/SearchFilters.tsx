@@ -17,7 +17,7 @@ export interface FilterOptions {
   status: string[];
 }
 
-export type SortOption = 'newest' | 'oldest' | 'views-high' | 'views-low' | 'likes-high' | 'likes-low';
+export type SortOption = 'newest' | 'oldest' | 'popular' | 'name_asc' | 'name_desc' | 'views-high' | 'views-low' | 'likes-high' | 'likes-low';
 
 export default function SearchFilters({ onSearch, onFilter, onSort }: SearchFiltersProps) {
   const [searchQuery, setSearchQuery] = useState('');

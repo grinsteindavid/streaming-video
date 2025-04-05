@@ -7,38 +7,25 @@ interface ContentCardProps {
   id: string;
   title: string;
   thumbnail: string;
-  views: number;
-  likes: number;
+  viewCount: number;
   uploadDate: string;
   duration: string;
-  status: 'published' | 'draft';
-  categories: string[];
+  status: string;
 }
 
 export default function ContentCard({
   id,
   title,
   thumbnail,
-  views,
-  likes,
+  viewCount,
   uploadDate,
   duration,
-  status,
-  categories
+  status
 }: ContentCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
   };
 
   const formatViews = (count: number) => {
@@ -80,6 +67,7 @@ export default function ContentCard({
           <button
             className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-full p-2 mx-1 hover:bg-blue-500 hover:text-white transition-colors duration-200"
             aria-label="Edit"
+            onClick={() => window.location.href = `/content/edit/${id}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
@@ -88,8 +76,13 @@ export default function ContentCard({
         </div>
 
         {/* Status badge */}
-        <div className={`absolute top-2 left-2 px-2 py-0.5 rounded text-xs ${status === 'published' ? 'bg-green-500' : 'bg-yellow-500'} text-white`}>
-          {status === 'published' ? 'Published' : 'Draft'}
+        <div className={`absolute top-2 left-2 px-2 py-0.5 rounded text-xs ${
+          status === 'published' ? 'bg-green-500' : 
+          status === 'draft' ? 'bg-yellow-500' : 
+          status === 'processing' ? 'bg-blue-500' : 
+          status === 'error' ? 'bg-red-500' : 'bg-gray-500'} text-white`}
+        >
+          {status.charAt(0).toUpperCase() + status.slice(1)}
         </div>
       </div>
 
@@ -126,32 +119,10 @@ export default function ContentCard({
         </div>
         
         <div className="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
-          <span>{formatDate(uploadDate)}</span>
+          <span>{uploadDate}</span>
           <span className="mx-1">•</span>
-          <span>{formatViews(views)} views</span>
-          <span className="mx-1">•</span>
-          <span className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-0.5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-            </svg>
-            {formatViews(likes)}
-          </span>
+          <span>{formatViews(viewCount)} views</span>
         </div>
-        
-        {categories.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {categories.slice(0, 3).map((category, index) => (
-              <span key={index} className="inline-block px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded">
-                {category}
-              </span>
-            ))}
-            {categories.length > 3 && (
-              <span className="inline-block px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 rounded">
-                +{categories.length - 3}
-              </span>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

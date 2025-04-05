@@ -10,7 +10,7 @@ export async function initMSW() {
   }
 
   // Only initialize MSW in development mode
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
     const { initMocks } = await import('@/mocks');
     await initMocks();
   }

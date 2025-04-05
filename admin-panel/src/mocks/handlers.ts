@@ -1,6 +1,7 @@
 import { http, HttpResponse, delay } from 'msw';
 import { mockVideos } from './video-data';
 import { CreateVideoRequest, UpdateVideoRequest, VideoUploadResponse, VideoResponse } from '@/types/api';
+import { AnalyticsResponse, TopVideoResponse, ViewsByDateResponse } from '@/services/analytics-service';
 
 // Base API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
@@ -189,6 +190,65 @@ export const handlers = [
     return HttpResponse.json({ thumbnailUrl: `https://example.com/thumbnails/${id}` });
   }),
   
+  // GET /analytics/summary - Get dashboard summary metrics
+  http.get(`${API_URL}/analytics/summary`, async () => {
+    await delay(300);
+    
+    const summary: AnalyticsResponse = {
+      totalVideos: mockVideos.length,
+      totalViews: mockVideos.reduce((sum, video) => sum + (video.stats?.views || 0), 0),
+      averageEngagement: 68, // Percentage
+      storageUsed: Math.round(mockVideos.length * 256 * 100) / 100, // In GB
+      change: {
+        videos: 12.5,
+        views: 8.2,
+        engagement: -2.1,
+        storage: 4.3
+      }
+    };
+    
+    return HttpResponse.json(summary);
+  }),
+  
+  http.get(`${API_URL}/analytics/views`, async ({ request }) => {
+    const url = new URL(request.url);
+    const period = url.searchParams.get('period') || '7d';
+    await delay(400);
+    
+    // Generate last n days of data based on period
+    const days = period === '30d' ? 30 : period === '90d' ? 90 : 7;
+    const viewsData: ViewsByDateResponse[] = Array.from({ length: days }).map((_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (days - i - 1));
+      return {
+        date: date.toISOString().split('T')[0],
+        views: Math.floor(Math.random() * 1000) + 500 // Random views between 500-1500
+      };
+    });
+    
+    return HttpResponse.json(viewsData);
+  }),
+  
+  http.get(`${API_URL}/analytics/top-videos`, async ({ request }) => {
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get('limit') || '5');
+    await delay(350);
+    
+    // Sort videos by views and take the top n
+    const topVideos: TopVideoResponse[] = [...mockVideos]
+      .sort((a, b) => (b.stats?.views || 0) - (a.stats?.views || 0))
+      .slice(0, limit)
+      .map(video => ({
+        id: video.id,
+        title: video.title,
+        thumbnail_url: video.thumbnail_url,
+        views: video.stats?.views || 0,
+        engagement: (video.stats?.average_rating || 0) * 20 // Convert 0-5 rating to percentage
+      }));
+    
+    return HttpResponse.json(topVideos);
+  }),
+
   // GET /analytics/videos/:id - Get video performance metrics
   http.get(`${API_URL}/analytics/videos/:id`, async ({ params }) => {
     const { id } = params;
