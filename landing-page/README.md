@@ -1,7 +1,7 @@
-# Netflix-like Video Streaming Platform - Landing Page
+# Prime Video-like Video Streaming Platform - Landing Page
 
 ## Project Overview
-This is the landing page for a video streaming platform similar to Netflix. It provides users with an intuitive interface to browse, search, and watch video content.
+This is the landing page for a video streaming platform similar to Prime Video. It provides users with an intuitive interface to browse, search, and watch video content.
 
 ## Features
 
@@ -33,32 +33,35 @@ This is the landing page for a video streaming platform similar to Netflix. It p
 - **Frontend**: Next.js with React
 - **Styling**: Tailwind CSS
 - **State Management**: React Context API
+- **Data Fetching**: React Query
 - **Video Playback**: Video.js with HLS support
+- **Package Manager**: pnpm
+- **TypeScript**: Yes
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js (version 18.x or later)
-- npm or yarn
+- npm or yarn or pnpm
 
 ### Installation
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/video-streaming-platform.git
-
-# Navigate to the landing-page directory
-cd video-streaming-platform/landing-page
+# Navigate to the admin-panel directory
+cd admin-panel
 
 # Install dependencies
 npm install
 # or
 yarn install
+# or
+pnpm install
 
 # Start development server
 npm run dev
 # or
 yarn dev
-```
+# or
+pnpm de
 
 ### Environment Variables
 Create a `.env.local` file in the root directory with the following variables:

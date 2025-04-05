@@ -30,6 +30,7 @@ This is an administrative dashboard for a video streaming platform similar to Ne
 - **Styling**: Tailwind CSS
 - **State Management**: React Context API
 - **Data Fetching**: React Query
+- **Video Playback**: Video.js with HLS support
 - **Analytics**: Chart.js with React Chart.js 2
 - **Package Manager**: pnpm
 - **TypeScript**: Yes

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface SearchFiltersProps {
   onSearch: (query: string) => void;
@@ -41,7 +41,32 @@ export default function SearchFilters({ onSearch, onFilter, onSort }: SearchFilt
     'Productivity'
   ];
 
+  // Debounced search with 500ms delay
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    // Clear previous timeout on each change
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
+    }
+    
+    // Set new timeout for search
+    searchTimeout.current = setTimeout(() => {
+      onSearch(searchQuery);
+    }, 500);
+    
+    return () => {
+      if (searchTimeout.current) {
+        clearTimeout(searchTimeout.current);
+      }
+    };
+  }, [searchQuery, onSearch]);
+  
   const handleSearch = () => {
+    // Immediate search when button is clicked
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
+    }
     onSearch(searchQuery);
   };
 
@@ -133,10 +158,9 @@ export default function SearchFilters({ onSearch, onFilter, onSort }: SearchFilt
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
-              <option value="views-high">Most Views</option>
-              <option value="views-low">Least Views</option>
-              <option value="likes-high">Most Likes</option>
-              <option value="likes-low">Least Likes</option>
+              <option value="popular">Most Views</option>
+              <option value="name_asc">Name (A-Z)</option>
+              <option value="name_desc">Name (Z-A)</option>
             </select>
           </div>
           
