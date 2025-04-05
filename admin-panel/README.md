@@ -30,12 +30,15 @@ This is an administrative dashboard for a video streaming platform similar to Ne
 - **Styling**: Tailwind CSS
 - **State Management**: React Context API
 - **Data Fetching**: React Query
+- **Analytics**: Chart.js with React Chart.js 2
+- **Package Manager**: pnpm
+- **TypeScript**: Yes
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js (version 18.x or later)
-- npm or yarn
+- npm or yarn or pnpm
 
 ### Installation
 ```bash
@@ -46,11 +49,15 @@ cd admin-panel
 npm install
 # or
 yarn install
+# or
+pnpm install
 
 # Start development server
 npm run dev
 # or
 yarn dev
+# or
+pnpm dev
 ```
 
 ### Environment Variables

@@ -11,7 +11,6 @@ export default function Sidebar() {
     { name: 'Content Library', href: '/content', icon: 'FilmIcon' },
     { name: 'Upload', href: '/upload', icon: 'CloudUploadIcon' },
     { name: 'Analytics', href: '/analytics', icon: 'ChartPieIcon' },
-    { name: 'Settings', href: '/settings', icon: 'CogIcon' },
   ];
 
   return (
