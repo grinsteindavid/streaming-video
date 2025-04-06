@@ -17,14 +17,11 @@ const NavContainer = styled.header<{ isScrolled: boolean; transparent: boolean }
   transition: all 0.2s ease;
   background-color: ${({ isScrolled, transparent }) =>
     isScrolled || !transparent
-      ? '#1a242f'  // Amazon Prime Video's dark background color
-      : 'rgba(0, 0, 0, 0.6)'};  // Semi-transparent dark background when not scrolled
-  backdrop-filter: ${({ isScrolled }) =>
-    isScrolled ? 'blur(8px)' : 'blur(4px)'};
-  -webkit-backdrop-filter: ${({ isScrolled }) =>
-    isScrolled ? 'blur(8px)' : 'blur(4px)'};
-  box-shadow: ${({ isScrolled }) =>
-    isScrolled ? '0 1px 8px rgba(0, 0, 0, 0.3)' : 'none'};
+      ? '#0f171e'  // Darker Amazon Prime Video background color
+      : 'rgba(0, 0, 0, 0.85)'};  // More opaque dark background when not scrolled
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
   padding: 0;
   height: 72px;
   display: flex;
@@ -74,7 +71,7 @@ const NavLinks = styled.nav`
 const NavLink = styled.span`
   color: #fff;
   font-size: 17px;
-  font-weight: 400;
+  font-weight: 500;
   text-decoration: none;
   transition: color 0.2s ease;
   cursor: pointer;
@@ -84,7 +81,7 @@ const NavLink = styled.span`
   display: flex;
   align-items: center;
   position: relative;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);  // Add text shadow for better readability
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);  // Stronger text shadow
   
   &:hover {
     color: #fff;
