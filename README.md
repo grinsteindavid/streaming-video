@@ -35,8 +35,21 @@ This is the landing page for a video streaming platform as similar as possible t
 - **State Management**: React Context API
 - **Data Fetching**: React Query
 - **Video Playback**: Video.js with HLS support
+- **Mocking**: Mock Service Worker (MSW)
 - **Package Manager**: pnpm
 - **TypeScript**: Yes
+
+## API Endpoints
+
+### Video Management
+- `GET /api/videos/{id}` - Get video details by ID
+- `GET /api/videos` - List all videos with pagination and filtering
+
+### Video Streaming
+- `GET /api/videos/{id}/stream` - Stream video in HLS format
+- `GET /api/videos/{id}/subtitles/{language}` - Get subtitles
+- `GET /api/videos/{id}/subtitles` - Get all available subtitles
+
 
 ## UX/UI Best Practices for Video Streaming Landing Page
 ### Core Elements
@@ -127,7 +140,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3001/api
 ├── hooks/            # Custom React hooks
 ├── pages/            # Next.js pages and API routes
 ├── public/           # Static assets
-├── styles/           # Global styles and Tailwind config
+├── styles/           # Global styles and Emotion UI config
 ├── types/            # TypeScript type definitions
 └── utils/            # Utility functions
 ```

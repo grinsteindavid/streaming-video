@@ -261,22 +261,4 @@ export const handlers = [
     await delay(300); // Simulate network delay
     return HttpResponse.json(video.stats);
   }),
-  
-  // POST /analytics/videos/:id/view - Record a video view
-  http.post(`${API_URL}/analytics/videos/:id/view`, async ({ params }) => {
-    const { id } = params;
-    const videoIndex = mockVideos.findIndex(v => v.id === id);
-    
-    if (videoIndex === -1) {
-      return new HttpResponse(null, { status: 404, statusText: 'Video not found' });
-    }
-    
-    // Update view count
-    if (mockVideos[videoIndex].stats) {
-      mockVideos[videoIndex].stats.views += 1;
-    }
-    
-    await delay(200); // Simulate network delay
-    return HttpResponse.json({ success: true });
-  }),
 ];

@@ -38,6 +38,7 @@ This is the backend API for our video streaming platform, built with C# and .NET
 ### Video Streaming
 - `GET /api/videos/{id}/stream` - Stream video in HLS format
 - `GET /api/videos/{id}/subtitles/{language}` - Get subtitles
+- `GET /api/videos/{id}/subtitles` - Get all available subtitles
 
 ### Analytics
 - `GET /api/analytics/videos/{id}` - Get video performance metrics
