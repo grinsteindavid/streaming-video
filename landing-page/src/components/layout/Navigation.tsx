@@ -14,17 +14,24 @@ const NavContainer = styled.header<{ isScrolled: boolean; transparent: boolean }
   left: 0;
   width: 100%;
   z-index: 100;
-  transition: ${({ theme }) => theme.transitions.default};
-  background-color: ${({ isScrolled, transparent, theme }) =>
+  transition: all 0.2s ease;
+  background-color: ${({ isScrolled, transparent }) =>
     isScrolled || !transparent
-      ? theme.colors.background.primary
-      : 'transparent'};
-  box-shadow: ${({ isScrolled, theme }) =>
-    isScrolled ? theme.shadows.sm : 'none'};
-  padding: ${({ theme }) => `${theme.spacing.md} ${theme.spacing.lg}`};
+      ? '#1a242f'  // Amazon Prime Video's dark background color
+      : 'rgba(0, 0, 0, 0.6)'};  // Semi-transparent dark background when not scrolled
+  backdrop-filter: ${({ isScrolled }) =>
+    isScrolled ? 'blur(8px)' : 'blur(4px)'};
+  -webkit-backdrop-filter: ${({ isScrolled }) =>
+    isScrolled ? 'blur(8px)' : 'blur(4px)'};
+  box-shadow: ${({ isScrolled }) =>
+    isScrolled ? '0 1px 8px rgba(0, 0, 0, 0.3)' : 'none'};
+  padding: 0;
+  height: 72px;
+  display: flex;
+  align-items: center;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
+    height: 60px;
   }
 `;
 
@@ -32,15 +39,19 @@ const NavContent = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   max-width: 1440px;
   margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
 `;
 
 const LogoContainer = styled.div`
   display: flex;
   align-items: center;
-  padding: ${({ theme }) => theme.spacing.xs};
-  margin-right: ${({ theme }) => theme.spacing.md};
+  height: 100%;
+  padding: 0;
+  margin-right: 24px;
   position: relative;
   
   img {
@@ -52,8 +63,8 @@ const LogoContainer = styled.div`
 const NavLinks = styled.nav`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xl};
-  margin-left: ${({ theme }) => theme.spacing.xl};
+  height: 100%;
+  margin: 0;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     display: none;
@@ -61,18 +72,37 @@ const NavLinks = styled.nav`
 `;
 
 const NavLink = styled.span`
-  color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.typography.fontSizes.md};
-  font-weight: ${({ theme }) => theme.typography.fontWeights.medium};
+  color: #fff;
+  font-size: 17px;
+  font-weight: 400;
   text-decoration: none;
-  transition: ${({ theme }) => theme.transitions.default};
+  transition: color 0.2s ease;
   cursor: pointer;
-  padding: ${({ theme }) => `${theme.spacing.xs} ${theme.spacing.sm}`};
+  padding: 0 16px;
   white-space: nowrap;
-  letter-spacing: 0.3px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);  // Add text shadow for better readability
   
   &:hover {
-    color: ${({ theme }) => theme.colors.accent.primary};
+    color: #fff;
+  }
+  
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 16px;
+    right: 16px;
+    height: 2px;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+  }
+  
+  &:hover:after {
+    background-color: #fff;
   }
 `;
 
@@ -238,12 +268,12 @@ export const Navigation: React.FC<NavigationProps> = ({ transparent = false }) =
       <NavContainer isScrolled={isScrolled} transparent={transparent}>
         <NavContent>
           <LogoContainer>
-            <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
               <Image 
                 src="/logo.png" 
-                alt="Video Streaming" 
-                width={100} 
-                height={32} 
+                alt="Prime Video" 
+                width={120} 
+                height={36} 
                 priority 
                 style={{ objectFit: 'contain' }}
               />
