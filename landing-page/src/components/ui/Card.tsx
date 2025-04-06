@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import Image from 'next/image';
 import { Video } from '@/types/video';
 import { Button } from './Button';
 import { useVideo } from '@/context/VideoContext';
+import { useWatchlist } from '@/context/WatchlistContext';
 
 interface CardProps {
   video: Video;
@@ -111,9 +114,34 @@ const ButtonContainer = styled.div`
   margin-top: ${({ theme }) => theme.spacing.sm};
 `;
 
+const WatchlistButton = styled.button<{ isInWatchlist: boolean }>`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  color: ${({ isInWatchlist, theme }) => isInWatchlist ? theme.colors.accent.primary : 'white'};
+  opacity: 0.7;
+  
+  &:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+`;
+
 export const Card: React.FC<CardProps> = ({ video, onClick, size = 'medium' }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { getVideoProgressById } = useVideo();
+  const { isInWatchlist, toggleWatchlist } = useWatchlist();
   
   // Calculate progress percentage
   const progressPercentage = video.duration > 0 
@@ -126,6 +154,12 @@ export const Card: React.FC<CardProps> = ({ video, onClick, size = 'medium' }) =
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
+  
+  // Handle watchlist button click
+  const handleWatchlistClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the parent click event
+    toggleWatchlist(video.id);
+  };
 
   return (
     <CardContainer 
@@ -135,17 +169,21 @@ export const Card: React.FC<CardProps> = ({ video, onClick, size = 'medium' }) =
       onMouseLeave={() => setIsHovered(false)}
       onClick={onClick}
     >
+      <WatchlistButton 
+        isInWatchlist={isInWatchlist(video.id)}
+        onClick={handleWatchlistClick}
+        aria-label={isInWatchlist(video.id) ? 'Remove from watchlist' : 'Add to watchlist'}
+      >
+        {isInWatchlist(video.id) ? '★' : '☆'}
+      </WatchlistButton>
+      
       <ThumbnailContainer>
         <Image 
           src={video.thumbnailUrl} 
           alt={video.title}
           fill
           style={{ objectFit: 'cover' }}
-          sizes={`
-            (max-width: ${({ theme }) => theme.breakpoints.sm}) 100vw, 
-            (max-width: ${({ theme }) => theme.breakpoints.md}) 50vw, 
-            33vw
-          `}
+          sizes='(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw'
         />
       </ThumbnailContainer>
       

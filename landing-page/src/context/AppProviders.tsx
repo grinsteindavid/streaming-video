@@ -5,6 +5,7 @@ import { ThemeProvider } from '@emotion/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { VideoProvider } from './VideoContext';
 import { SearchProvider } from './SearchContext';
+import { WatchlistProvider } from './WatchlistContext';
 import { theme } from '@/styles/theme';
 import { Global } from '@emotion/react';
 import { globalStyles } from '@/styles/global';
@@ -37,7 +38,9 @@ export const AppProviders: React.FC<AppProvidersProps> = ({
         <Global styles={globalStyles} />
         <VideoProvider>
           <SearchProvider videos={initialVideos}>
-            {children}
+            <WatchlistProvider>
+              {children}
+            </WatchlistProvider>
           </SearchProvider>
         </VideoProvider>
       </ThemeProvider>

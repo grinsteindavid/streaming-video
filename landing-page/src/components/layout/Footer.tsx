@@ -137,7 +137,7 @@ export const Footer: React.FC = () => {
         <FooterColumn>
           <FooterTitle>About Us</FooterTitle>
           <Link href="/about">
-            <FooterLink>About Prime Video</FooterLink>
+            <FooterLink>About  Video</FooterLink>
           </Link>
           <Link href="/terms">
             <FooterLink>Terms of Use</FooterLink>
@@ -182,13 +182,13 @@ export const Footer: React.FC = () => {
         <Link href="/">
           <Image 
             src="/logo.png" 
-            alt="Prime Video" 
+            alt=" Video" 
             width={100} 
             height={32} 
           />
         </Link>
         <Copyright>
-          &copy; {new Date().getFullYear()} Prime Video. All Rights Reserved.
+          &copy; {new Date().getFullYear()}  Video. All Rights Reserved.
         </Copyright>
       </BottomFooter>
     </FooterContainer>
