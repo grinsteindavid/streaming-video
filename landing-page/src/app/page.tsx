@@ -1,103 +1,137 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import styled from '@emotion/styled';
+import { useRouter } from 'next/navigation';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { HeroBanner } from '@/components/ui/HeroBanner';
+import { Carousel } from '@/components/ui/Carousel';
+import { SearchResults } from '@/components/search/SearchResults';
+import { useSearch } from '@/context/SearchContext';
+import { useVideoCategories, useFeaturedVideos } from '@/hooks/useVideos';
+import { Video } from '@/types/video';
+
+const HomeContainer = styled.div`
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 ${({ theme }) => theme.spacing.lg};
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: 0 ${({ theme }) => theme.spacing.md};
+  }
+`;
+
+const ContinueWatchingSection = styled.section`
+  margin-top: ${({ theme }) => theme.spacing.xl};
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
+`;
+
+const ContinueWatchingTitle = styled.h2`
+  font-size: ${({ theme }) => theme.typography.fontSizes.xl};
+  font-weight: ${({ theme }) => theme.typography.fontWeights.bold};
+  margin-bottom: ${({ theme }) => theme.spacing.md};
+  color: ${({ theme }) => theme.colors.text.primary};
+`;
+
+const EmptyStateMessage = styled.p`
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.typography.fontSizes.md};
+  padding: ${({ theme }) => theme.spacing.lg} 0;
+`;
 
 export default function Home() {
+  const router = useRouter();
+  const { searchQuery } = useSearch();
+  const [continueWatchingVideos, setContinueWatchingVideos] = useState<Video[]>([]);
+  const featuredVideosRef = useRef<string>('');
+  
+  // Fetch featured videos for the hero banner
+  const { data: featuredVideos = [], isLoading: isFeaturedLoading } = useFeaturedVideos();
+  const typedFeaturedVideos = featuredVideos as Video[];
+  
+  // Fetch video categories
+  const { data: videoCategories = [], isLoading: isCategoriesLoading } = useVideoCategories();
+  const typedVideoCategories = videoCategories as { id: string; name: string; videos: Video[] }[];
+  
+  // Handle video click
+  const handleVideoClick = (video: Video) => {
+    router.push(`/video/${video.id}`);
+  };
+  
+  // Load continue watching videos from localStorage
+  useEffect(() => {
+    // Only proceed if we have featured videos loaded
+    if (typedFeaturedVideos.length === 0) return;
+    
+    // Create a signature of the current featured videos to detect changes
+    const featuredVideoSignature = typedFeaturedVideos.map(v => v.id).sort().join(',');
+    
+    // Skip if we've already processed this exact set of featured videos
+    if (featuredVideoSignature === featuredVideosRef.current) return;
+    
+    // Update our ref to avoid reprocessing the same data
+    featuredVideosRef.current = featuredVideoSignature;
+    
+    try {
+      const savedProgress = localStorage.getItem('videoProgress');
+      if (savedProgress) {
+        const progressData = JSON.parse(savedProgress);
+        // Sort by most recent
+        progressData.sort((a: any, b: any) => b.timestamp - a.timestamp);
+        
+        // Get videos for the progress items
+        const watchingVideos = progressData.slice(0, 6).map((progress: any) => {
+          return typedFeaturedVideos.find(video => video.id === progress.videoId);
+        }).filter(Boolean) as Video[];
+        
+        setContinueWatchingVideos(watchingVideos);
+      }
+    } catch (err) {
+      console.error('Failed to load video progress from localStorage', err);
+    }
+  }, [typedFeaturedVideos]); // Only depend on typedFeaturedVideos
+  
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    <MainLayout transparentHeader={true}>
+      {/* Hero Banner */}
+      <HeroBanner 
+        featuredVideos={typedFeaturedVideos.slice(0, 3)} 
+        onPlayClick={handleVideoClick}
+        onDetailsClick={handleVideoClick}
+      />
+      
+      <HomeContainer>
+        {/* Continue Watching Section */}
+        {continueWatchingVideos.length > 0 && (
+          <ContinueWatchingSection>
+            <ContinueWatchingTitle>Continue Watching</ContinueWatchingTitle>
+            <Carousel 
+              title="" 
+              videos={continueWatchingVideos} 
+              onVideoClick={handleVideoClick}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          </ContinueWatchingSection>
+        )}
+        
+        {/* Video Categories */}
+        {isCategoriesLoading ? (
+          <EmptyStateMessage>Loading categories...</EmptyStateMessage>
+        ) : (
+          typedVideoCategories.map(category => (
+            <Carousel 
+              key={category.id} 
+              title={category.name} 
+              videos={category.videos}
+              cardSize={category.name === 'Featured' ? 'large' : 'medium'}
+              onVideoClick={handleVideoClick}
+            />
+          ))
+        )}
+      </HomeContainer>
+      
+      {/* Search Results */}
+      {searchQuery && <SearchResults onVideoClick={handleVideoClick} />}
+    </MainLayout>
   );
 }
