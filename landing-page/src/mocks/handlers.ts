@@ -5,6 +5,11 @@ import { Video } from '@/types/video';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
 export const handlers = [
+  // Get video categories - this specific route must come before the generic videos/:id route
+  http.get(`${API_URL}/videos/categories`, () => {
+    return HttpResponse.json(mockCategories);
+  }),
+  
   // Get all videos with filtering
   http.get(`${API_URL}/videos`, ({ request }) => {
     const url = new URL(request.url);
@@ -85,17 +90,12 @@ export const handlers = [
     return HttpResponse.json(video);
   }),
   
-  // Get video categories
-  http.get(`${API_URL}/videos/categories`, () => {
-    return HttpResponse.json(mockCategories);
-  }),
-  
   // Get video stream (mock response with a delay)
   http.get(`${API_URL}/videos/:id/stream`, () => {
     return new HttpResponse('MOCK_HLS_CONTENT', {
       status: 200,
       headers: {
-        'Content-Type': 'application/x-mpegURL'
+        'Content-Type': 'application/vnd.apple.mpegurl'
       }
     });
   }),
