@@ -120,32 +120,32 @@ export const Footer: React.FC = () => {
         
         <FooterColumn>
           <FooterTitle>Help & Support</FooterTitle>
-          <Link href="/help">
+          <Link href="/not-available">
             <FooterLink>Help Center</FooterLink>
           </Link>
-          <Link href="/account">
+          <Link href="/not-available">
             <FooterLink>Account & Billing</FooterLink>
           </Link>
-          <Link href="/supported-devices">
+          <Link href="/not-available">
             <FooterLink>Supported Devices</FooterLink>
           </Link>
-          <Link href="/accessibility">
+          <Link href="/not-available">
             <FooterLink>Accessibility</FooterLink>
           </Link>
         </FooterColumn>
         
         <FooterColumn>
           <FooterTitle>About Us</FooterTitle>
-          <Link href="/about">
-            <FooterLink>About  Video</FooterLink>
+          <Link href="/not-available">
+            <FooterLink>About Video</FooterLink>
           </Link>
-          <Link href="/terms">
+          <Link href="/not-available">
             <FooterLink>Terms of Use</FooterLink>
           </Link>
-          <Link href="/privacy">
+          <Link href="/not-available">
             <FooterLink>Privacy Policy</FooterLink>
           </Link>
-          <Link href="/contact">
+          <Link href="/not-available">
             <FooterLink>Contact Us</FooterLink>
           </Link>
         </FooterColumn>
