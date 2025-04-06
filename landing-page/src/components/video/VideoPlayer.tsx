@@ -4,10 +4,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { useVideo } from '@/context/VideoContext';
 import { Video } from '@/types/video';
+import dynamic from 'next/dynamic';
 
-// Dynamic imports for client-side only libraries
+// We'll use refs to store the dynamically loaded modules
 let videojs: any = null;
-let hlsPlugin: any = null;
 
 interface VideoPlayerProps {
   video: Video;
@@ -147,8 +147,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, onBack }) => {
         videojs = vjsModule.default;
         await import('video.js/dist/video-js.css');
         
-        // Dynamically import HLS plugin
-        await import('videojs-contrib-hls');
+        // Instead of importing the HLS plugin directly, we'll use video.js's HTTP streaming
+        // which is more compatible with Next.js
+        await import('@videojs/http-streaming');
         
         setPlayerReady(true);
       } catch (error) {
@@ -161,7 +162,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, onBack }) => {
     // Cleanup function
     return () => {
       videojs = null;
-      hlsPlugin = null;
     };
   }, []);
   
@@ -180,7 +180,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, onBack }) => {
       fluid: true,
       sources: [{
         src: video.videoUrl,
-        type: 'application/x-mpegURL' // HLS format
+        type: 'application/vnd.apple.mpegurl' // HLS format with more compatible MIME type
       }],
       poster: video.thumbnailUrl,
       playbackRates: [0.5, 1, 1.25, 1.5, 2],
