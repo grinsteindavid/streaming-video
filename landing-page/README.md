@@ -62,6 +62,29 @@ Reduced Motion Option: Settings for users with motion sensitivity
 
 This streamlined approach prioritizes user engagement while maintaining performance across all devices and accessibility standards.
 
+### Visual Design (UI)
+
+#### Color Scheme
+
+- Dominantly dark theme: deep navy and black tones for backgrounds
+- Contrasting white and light gray fonts
+- Highlight colors: Blue (for selected content), Yellow (Prime branding), occasional use of red/orange for urgency (like rentals expiring soon)
+
+#### Typography
+
+- Clean, modern sans-serif fonts
+- Hierarchy is clear — large bold titles for featured shows, smaller text for metadata like rating, duration, year
+
+#### Layout
+
+- Grid-based with horizontal carousels (e.g., "Continue Watching", "Recommended", etc.)
+- Cards are used extensively with rounded corners and subtle shadows
+
+#### Imagery
+
+- Poster-heavy interface, using high-quality thumbnails as the main visual cues
+- Banner heroes for originals and promoted content
+
 ## Getting Started
 
 ### Prerequisites
