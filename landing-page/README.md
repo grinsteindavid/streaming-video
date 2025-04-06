@@ -1,7 +1,7 @@
 # Prime Video-like Video Streaming Platform - Landing Page
 
 ## Project Overview
-This is the landing page for a video streaming platform similar to Prime Video. It provides users with an intuitive interface to browse, search, and watch video content.
+This is the landing page for a video streaming platform as similar as possible to Prime Video. It provides users with an intuitive interface to browse, search, and watch video content.
 
 ## Features
 
