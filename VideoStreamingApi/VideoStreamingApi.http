@@ -1,0 +1,6 @@
+@VideoStreamingApi_HostAddress = http://localhost:5065
+
+GET {{VideoStreamingApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
