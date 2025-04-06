@@ -146,6 +146,10 @@ const SearchIcon = styled.div<{ isExpanded: boolean }>`
   justify-content: center;
   cursor: ${({ isExpanded }) => (isExpanded ? 'default' : 'pointer')};
   color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: 18px;
+  background: none;
+  pointer-events: ${({ isExpanded }) => (isExpanded ? 'none' : 'auto')};
+  z-index: 2;
 `;
 
 const MobileMenuButton = styled.button`
@@ -215,6 +219,7 @@ export const Navigation: React.FC<NavigationProps> = ({ transparent = false }) =
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { searchQuery, setSearchQuery } = useSearch();
+  const searchContainerRef = React.useRef<HTMLDivElement>(null);
   
   // Handle scroll event to change navigation background
   useEffect(() => {
@@ -228,6 +233,25 @@ export const Navigation: React.FC<NavigationProps> = ({ transparent = false }) =
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+  
+  // Handle clicks outside search container
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchContainerRef.current && 
+        !searchContainerRef.current.contains(event.target as Node) && 
+        isSearchExpanded && 
+        searchQuery.trim() === ''
+      ) {
+        setIsSearchExpanded(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSearchExpanded, searchQuery]);
   
   // Handle search icon click
   const handleSearchIconClick = () => {
@@ -295,14 +319,13 @@ export const Navigation: React.FC<NavigationProps> = ({ transparent = false }) =
             </Link>
           </NavLinks>
           
-          <SearchContainer>
+          <SearchContainer ref={searchContainerRef}>
             <SearchInput 
               id="search-input"
               type="text"
               placeholder="Search"
               value={searchQuery}
               onChange={handleSearchChange}
-              onBlur={handleSearchBlur}
               isExpanded={isSearchExpanded}
               aria-label="Search videos"
             />
@@ -311,7 +334,9 @@ export const Navigation: React.FC<NavigationProps> = ({ transparent = false }) =
               onClick={handleSearchIconClick}
               aria-hidden="true"
             >
-              🔍
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" fill="currentColor"/>
+              </svg>
             </SearchIcon>
           </SearchContainer>
           
