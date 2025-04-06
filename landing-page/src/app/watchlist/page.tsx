@@ -83,6 +83,11 @@ const WatchlistItem = styled.div`
   
   &:hover {
     transform: scale(1.05);
+    
+    /* Show remove button on hover */
+    button {
+      opacity: 1;
+    }
   }
 `;
 
@@ -128,10 +133,6 @@ const RemoveButton = styled.button`
   opacity: 0;
   transition: opacity 0.2s ease;
   
-  ${WatchlistItem}:hover & {
-    opacity: 1;
-  }
-  
   &:hover {
     background-color: rgba(255, 0, 0, 0.7);
   }
@@ -139,26 +140,21 @@ const RemoveButton = styled.button`
 
 export default function WatchlistPage() {
   const router = useRouter();
-  const [watchlistVideos, setWatchlistVideos] = useState<Video[]>([]);
   const { watchlist, removeFromWatchlist } = useWatchlist();
   
   // Fetch all videos to match with watchlist IDs
   const { data: allVideos = [] } = useFeaturedVideos();
-  const typedAllVideos = allVideos as Video[];
   
-  // Load watchlist videos when either watchlist IDs or available videos change
-  useEffect(() => {
-    if (typedAllVideos.length > 0 && watchlist.length > 0) {
-      // Find the full video objects for the watchlist IDs
-      const videos = watchlist
-        .map(id => typedAllVideos.find(video => video.id === id))
-        .filter(video => video !== undefined) as Video[];
-      
-      setWatchlistVideos(videos);
-    } else {
-      setWatchlistVideos([]);
+  // Derive watchlist videos directly without useState
+  const watchlistVideos = React.useMemo(() => {
+    if (!allVideos || allVideos.length === 0 || watchlist.length === 0) {
+      return [];
     }
-  }, [watchlist, typedAllVideos]);
+    
+    return watchlist
+      .map(id => allVideos.find((video: Video) => video.id === id))
+      .filter(Boolean) as Video[];
+  }, [watchlist, allVideos]);
   
   // Handle video click
   const handleVideoClick = (video: Video) => {
