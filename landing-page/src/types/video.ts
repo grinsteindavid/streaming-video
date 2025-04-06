@@ -13,6 +13,7 @@ export interface Video {
   isFeatured?: boolean;
   isNew?: boolean;
   subtitles?: Subtitle[];
+  progress?: number; // Current playback progress in seconds
 }
 
 export interface Subtitle {
