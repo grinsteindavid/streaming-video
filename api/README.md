@@ -17,7 +17,6 @@ This is the backend API for our video streaming platform, built with C# and .NET
 - **Subtitle Support**: Manage and serve captions in multiple languages
 
 ### Analytics
-- **View Tracking**: Record video views and watch duration
 - **User Interactions**: Store ratings, likes, and comments
 - **Performance Metrics**: Monitor streaming quality and errors
 
@@ -34,6 +33,7 @@ This is the backend API for our video streaming platform, built with C# and .NET
 - `PUT /api/videos/{id}` - Update video metadata
 - `DELETE /api/videos/{id}` - Remove a video
 - `GET /api/videos` - List all videos with pagination and filtering
+- `GET /api/videos/{id}` - Get video details by ID
 
 ### Video Streaming
 - `GET /api/videos/{id}/stream` - Stream video in HLS format
@@ -42,7 +42,6 @@ This is the backend API for our video streaming platform, built with C# and .NET
 
 ### Analytics
 - `GET /api/analytics/videos/{id}` - Get video performance metrics
-- `POST /api/analytics/videos/{id}/view` - Record a video view
 
 ## Database Schema
 
@@ -59,7 +58,6 @@ This is the backend API for our video streaming platform, built with C# and .NET
 ### VideoFiles
 - `id` (UUID) - Primary key
 - `video_id` (UUID) - Foreign key to Videos
-- `quality` (string) - Resolution/quality level
 - `file_path` (string) - Path to HLS playlist
 - `size` (long) - File size in bytes
 
@@ -69,7 +67,6 @@ This is the backend API for our video streaming platform, built with C# and .NET
 - `user_id` (UUID) - Foreign key to Users (nullable)
 - `timestamp` (timestamp) - When the view occurred
 - `watch_duration` (int) - Seconds watched
-- `ip_address` (string) - Viewer's IP address
 
 ### Ratings
 - `id` (UUID) - Primary key
@@ -88,7 +85,7 @@ This is the backend API for our video streaming platform, built with C# and .NET
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/video-streaming-api.git
+git clone https://github.com/grinsteindavid/video-streaming-api.git
 
 # Navigate to the project directory
 cd video-streaming-api
