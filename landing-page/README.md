@@ -20,7 +20,7 @@ This is the landing page for a video streaming platform as similar as possible t
 ### Video Player
 - **Adaptive Streaming**: Adjusts quality based on connection speed
 - **Playback Controls**: Play/pause, volume, fullscreen, and skip options
-- **Progress Tracking**: Remember watch progress across sessions
+- **Progress Tracking**: Remember watch progress across sessions, Persistent storage (e.g., localStorage). Loading saved progress when the video loads.
 - **Subtitle Support**: Multiple language captions
 
 ### Metadata Display
