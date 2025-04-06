@@ -39,6 +39,14 @@ const NavContent = styled.div`
 const LogoContainer = styled.div`
   display: flex;
   align-items: center;
+  padding: ${({ theme }) => theme.spacing.xs};
+  margin-right: ${({ theme }) => theme.spacing.md};
+  position: relative;
+  
+  img {
+    object-fit: contain;
+    max-height: 32px;
+  }
 `;
 
 const NavLinks = styled.nav`
@@ -230,13 +238,14 @@ export const Navigation: React.FC<NavigationProps> = ({ transparent = false }) =
       <NavContainer isScrolled={isScrolled} transparent={transparent}>
         <NavContent>
           <LogoContainer>
-            <Link href="/">
+            <Link href="/" style={{ display: 'flex', alignItems: 'center' }}>
               <Image 
                 src="/logo.png" 
-                alt="Prime Video" 
+                alt="Video Streaming" 
                 width={100} 
                 height={32} 
                 priority 
+                style={{ objectFit: 'contain' }}
               />
             </Link>
           </LogoContainer>
