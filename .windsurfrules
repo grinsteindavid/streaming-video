@@ -124,3 +124,114 @@
 - Provide only the information needed to address the specific request
 - Respect the existing code style, naming conventions, and patterns
 - When uncertain about requirements, ask clarifying questions rather than guessing
+
+
+# C# Microservices API Best Practices
+
+## Project Structure
+- `/src` - Main source code
+  - `/API` - API controllers and endpoints
+  - `/Application` - Application services and business logic
+  - `/Domain` - Domain entities, interfaces, and business rules
+  - `/Infrastructure` - Data access, external services integration
+- `/tests` - Test projects
+  - `/Unit` - Unit tests
+  - `/Integration` - Integration tests
+  - `/Functional` - API endpoint tests
+
+## Architecture Patterns
+- Implement Clean Architecture or Onion Architecture
+- Separate concerns with CQRS (Command Query Responsibility Segregation)
+- Use Mediator pattern with MediatR for handling commands and queries
+- Implement Repository pattern for data access abstraction
+- Use Domain-Driven Design (DDD) principles for complex domains
+- Apply Vertical Slice Architecture for feature organization
+
+## API Design
+- Follow RESTful API design principles
+- Use consistent URL naming conventions (plural nouns for resources)
+- Implement proper HTTP status codes and error responses
+- Use API versioning (URL, header, or content negotiation)
+- Implement proper request validation with FluentValidation
+- Use Swagger/OpenAPI for documentation
+- Implement proper pagination, filtering, and sorting
+- Use Problem Details (RFC 7807) for standardized error responses
+
+## Dependency Injection
+- Use built-in .NET Core DI container or Autofac for more complex scenarios
+- Register services with appropriate lifetimes (Singleton, Scoped, Transient)
+- Use interfaces for loose coupling
+- Implement proper service registration extensions
+- Avoid service locator anti-pattern
+
+## Performance Optimization
+- Implement response caching where appropriate
+- Use asynchronous programming with async/await
+- Implement proper database indexing
+- Use efficient data access patterns (no N+1 queries)
+- Implement proper connection pooling
+- Use memory caching for frequently accessed data
+- Implement proper resource disposal with IDisposable
+
+## Security
+- Implement proper authentication (JWT, OAuth2, OpenID Connect)
+- Use proper authorization with role-based or policy-based access control
+- Implement proper input validation and sanitization
+- Use HTTPS for all communications
+- Implement proper secrets management (no hardcoded secrets)
+- Apply proper CORS policies
+- Implement rate limiting and throttling
+- Use security headers (HSTS, CSP, etc.)
+
+## Logging and Monitoring
+- Use structured logging with Serilog or NLog
+- Implement proper log levels (Debug, Info, Warning, Error, Fatal)
+- Use correlation IDs for request tracing
+- Implement health checks and readiness probes
+- Use Application Insights or other APM tools
+- Implement proper exception handling and logging
+- Use metrics for monitoring performance and resource usage
+
+## Testing
+- Write unit tests for business logic
+- Implement integration tests for data access
+- Use functional tests for API endpoints
+- Implement proper test data setup and teardown
+- Use mocking frameworks (Moq, NSubstitute) for dependencies
+- Implement proper test coverage metrics
+- Use test containers for integration testing with databases
+
+## Configuration
+- Use Options pattern for strongly-typed configuration
+- Implement environment-specific configuration
+- Use proper secrets management (Azure Key Vault, AWS Secrets Manager)
+- Implement feature flags for controlled feature rollout
+- Use configuration validation at startup
+
+## Containerization
+- Use multi-stage Docker builds for smaller images
+- Implement proper health checks in Dockerfile
+- Use proper base images (Alpine where possible)
+- Implement proper Docker networking
+- Use Docker Compose for local development
+- Implement proper container orchestration (Kubernetes, Docker Swarm)
+
+## Microservices Communication
+- Use proper service discovery mechanisms
+- Implement resilient communication with Polly
+- Use message-based communication for asynchronous operations
+- Implement proper circuit breakers and fallbacks
+- Use proper API gateways for client communication
+- Implement proper service-to-service authentication
+- Use gRPC for high-performance internal communication
+
+## Database Practices
+- Use Entity Framework Core or Dapper for data access
+- Implement proper database migrations
+- Use database-per-service pattern
+- Implement proper transaction management
+- Use optimistic concurrency control
+- Implement proper database connection management
+- Use database sharding for horizontal scaling
+
+
