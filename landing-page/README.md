@@ -31,7 +31,7 @@ This is the landing page for a video streaming platform similar to Prime Video. 
 
 ## Tech Stack
 - **Frontend**: Next.js with React
-- **Styling**: Tailwind CSS
+- **Styling**: Emotion UI
 - **State Management**: React Context API
 - **Data Fetching**: React Query
 - **Video Playback**: Video.js with HLS support
