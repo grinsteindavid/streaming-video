@@ -1,10 +1,13 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import videojs from 'video.js';
-import 'video.js/dist/video-js.css';
-import 'videojs-contrib-hls';
 import { useVideo } from '@/context/VideoContext';
 import { Video } from '@/types/video';
+
+// Dynamic imports for client-side only libraries
+let videojs: any = null;
+let hlsPlugin: any = null;
 
 interface VideoPlayerProps {
   video: Video;
@@ -135,9 +138,36 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, onBack }) => {
   const { updateVideoProgress, getVideoProgressById } = useVideo();
   const [playerReady, setPlayerReady] = useState(false);
   
+  // Load video.js and HLS plugin dynamically on client side
+  useEffect(() => {
+    const loadVideoLibraries = async () => {
+      try {
+        // Dynamically import video.js and its CSS
+        const vjsModule = await import('video.js');
+        videojs = vjsModule.default;
+        await import('video.js/dist/video-js.css');
+        
+        // Dynamically import HLS plugin
+        await import('videojs-contrib-hls');
+        
+        setPlayerReady(true);
+      } catch (error) {
+        console.error('Failed to load video libraries:', error);
+      }
+    };
+    
+    loadVideoLibraries();
+    
+    // Cleanup function
+    return () => {
+      videojs = null;
+      hlsPlugin = null;
+    };
+  }, []);
+  
   // Initialize video.js player
   useEffect(() => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !playerReady || !videojs) return;
     
     // Get saved progress
     const savedProgress = getVideoProgressById(video.id);
@@ -211,12 +241,18 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, onBack }) => {
             ← Back
           </BackButton>
         )}
-        <div data-vjs-player>
-          <video
-            ref={videoRef}
-            className="video-js vjs-big-play-centered"
-          />
-        </div>
+        {!playerReady ? (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+            <p style={{ color: 'white' }}>Loading video player...</p>
+          </div>
+        ) : (
+          <div data-vjs-player>
+            <video
+              ref={videoRef}
+              className="video-js vjs-big-play-centered"
+            />
+          </div>
+        )}
       </PlayerContainer>
       
       <VideoInfo>
