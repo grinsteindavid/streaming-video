@@ -5,7 +5,7 @@ using VideoStreamingApi.Domain.Interfaces;
 namespace VideoStreamingApi.API.Controllers
 {
     [ApiController]
-    [Route("api/videos/{id}/streaming")]
+    [Route("api/streaming/videos/{id}")]
     public class StreamingController : ControllerBase
     {
         private readonly IVideoRepository _videoRepository;
