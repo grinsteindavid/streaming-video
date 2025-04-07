@@ -1,10 +1,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 WORKDIR /src
 
-# Install FFmpeg and curl for health checks
+# Install FFmpeg, curl, and debugging tools
 RUN apt-get update && \
-    apt-get install -y ffmpeg curl && \
+    apt-get install -y ffmpeg curl unzip procps && \
     rm -rf /var/lib/apt/lists/*
+
+# Install VS Code debugger
+RUN curl -sSL https://aka.ms/getvsdbgsh | bash /dev/stdin -v latest -l /vsdbg
 
 # Copy csproj and restore dependencies
 COPY VideoStreamingApi.csproj ./
@@ -20,5 +23,15 @@ RUN mkdir -p /app/videos && chmod 777 /app/videos
 ENV ASPNETCORE_URLS=http://+:8080
 ENV DOTNET_USE_POLLING_FILE_WATCHER=1
 
-# Start the app with hot reload
+# Enable debugging
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV DOTNET_ENVIRONMENT=Development
+
+# Enable debugging with VS Code
+ENV VSTEST_HOST_DEBUG=1
+
+# Start the app with hot reload and debugging enabled
 CMD ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:8080", "--project", "VideoStreamingApi.csproj"]
+
+# Alternative command for pure debugging (uncomment if needed)
+# ENTRYPOINT ["dotnet", "run", "--urls", "http://0.0.0.0:8080", "--project", "VideoStreamingApi.csproj", "--no-launch-profile"]

@@ -8,12 +8,19 @@ services:
     ports:
       - "5000:8080"
       - "5001:443"
+      - "5005:5005"  # Debugging port
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - DB_CONNECTION_STRING=Host=postgres;Database=videostreaming;Username=postgres;Password=postgres
       - STORAGE_PATH=/app/videos
       - FFMPEG_PATH=/usr/bin/ffmpeg
       - DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true
+      # Debugging environment variables
+      - ASPNETCORE_Logging__Console__FormatterName=
+      - ASPNETCORE_Logging__Console__FormatterOptions__IncludeScopes=true
+      - DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE=false
+      # Enable VS Code debugging
+      - VSTEST_HOST_DEBUG=1
     volumes:
       # Mount source code for real-time changes
       - .:/src
