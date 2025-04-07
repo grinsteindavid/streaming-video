@@ -128,6 +128,12 @@
 
 # C# Microservices API Best Practices
 
+## Single Responsibility Principle
+Controllers should only handle HTTP requests and responses, not implement business logic
+Testability: These health check operations would be easier to test if separated
+Reusability: Other parts of the application might need these health checks
+Maintainability: The controller is too large and does too many things
+
 ## Project Structure
 - `/src` - Main source code
   - `/API` - API controllers and endpoints
