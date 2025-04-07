@@ -6,7 +6,7 @@ using VideoStreamingApi.Application.Queries.Videos;
 namespace VideoStreamingApi.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/videos")]
     public class VideosController : ControllerBase
     {
         private readonly IMediator _mediator;

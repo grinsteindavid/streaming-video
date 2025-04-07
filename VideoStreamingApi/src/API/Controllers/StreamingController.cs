@@ -5,7 +5,7 @@ using VideoStreamingApi.Domain.Interfaces;
 namespace VideoStreamingApi.API.Controllers
 {
     [ApiController]
-    [Route("api/videos")]
+    [Route("api/videos/{id}/streaming")]
     public class StreamingController : ControllerBase
     {
         private readonly IVideoRepository _videoRepository;
@@ -22,8 +22,8 @@ namespace VideoStreamingApi.API.Controllers
             _logger = logger;
         }
 
-        // GET: api/videos/{id}/stream
-        [HttpGet("{id}/stream")]
+        // GET: api/videos/{id}/streaming
+        [HttpGet]
         public async Task<IActionResult> StreamVideo(Guid id)
         {
             try
@@ -50,7 +50,7 @@ namespace VideoStreamingApi.API.Controllers
 
                 // In a real application, we would serve the HLS playlist
                 // For now, we'll just return a placeholder response
-                return Ok(new { StreamUrl = $"/api/videos/{id}/hls/playlist.m3u8" });
+                return Ok(new { StreamUrl = $"/api/videos/{id}/streaming/hls/playlist.m3u8" });
             }
             catch (Exception ex)
             {
@@ -59,8 +59,8 @@ namespace VideoStreamingApi.API.Controllers
             }
         }
 
-        // GET: api/videos/{id}/hls/{filename}
-        [HttpGet("{id}/hls/{filename}")]
+        // GET: api/videos/{id}/streaming/hls/{filename}
+        [HttpGet("hls/{filename}")]
         public async Task<IActionResult> GetHlsFile(Guid id, string filename)
         {
             try
@@ -98,8 +98,8 @@ namespace VideoStreamingApi.API.Controllers
             }
         }
 
-        // GET: api/videos/{id}/thumbnail.jpg
-        [HttpGet("{id}/thumbnail.jpg")]
+        // GET: api/videos/{id}/streaming/thumbnail
+        [HttpGet("thumbnail")]
         public async Task<IActionResult> GetThumbnail(Guid id)
         {
             try

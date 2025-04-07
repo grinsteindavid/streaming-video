@@ -4,20 +4,17 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.prod
     ports:
       - "5000:8080"
       - "5001:443"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - DB_CONNECTION_STRING=Host=postgres;Database=videostreaming;Username=postgres;Password=postgres
       - STORAGE_PATH=/app/videos
       - FFMPEG_PATH=/usr/bin/ffmpeg
-      - DOTNET_WATCH_RESTART_ON_RUDE_EDIT=true
     volumes:
-      # Mount source code for real-time changes
-      - .:/src
-      # Mount local video storage
+      # Mount local video storage for persistence
       - ./data/videos:/app/videos
     depends_on:
       - postgres
@@ -29,6 +26,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    restart: unless-stopped
 
   postgres:
     image: postgres:14-alpine
@@ -39,7 +37,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # Mount local postgres data
+      # Mount local postgres data for persistence
       - ./data/postgres:/var/lib/postgresql/data
     networks:
       - videostreaming-network
@@ -48,6 +46,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
 networks:
   videostreaming-network:

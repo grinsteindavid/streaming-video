@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+WORKDIR /src
+
+# Install FFmpeg and curl for health checks
+RUN apt-get update && \
+    apt-get install -y ffmpeg curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy csproj and restore dependencies
+COPY VideoStreamingApi.csproj ./
+RUN dotnet restore
+
+# Copy everything else
+COPY . .
+
+# Create videos directory
+RUN mkdir -p /app/videos && chmod 777 /app/videos
+
+# Set environment variables
+ENV ASPNETCORE_URLS=http://+:8080
+ENV DOTNET_USE_POLLING_FILE_WATCHER=1
+
+# Start the app with hot reload
+CMD ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:8080", "--project", "VideoStreamingApi.csproj"]

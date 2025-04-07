@@ -398,3 +398,10 @@ FodyWeavers.xsd
 # Project-specific ignores
 videos/
 .env
+
+# Docker persistent data
+# Exclude data contents but keep directories with .gitkeep
+data/postgres/*
+!data/postgres/.gitkeep
+data/videos/*
+!data/videos/.gitkeep
