@@ -78,11 +78,18 @@ This is the backend API for our video streaming platform, built with C# and .NET
 ## Getting Started
 
 ### Prerequisites
+Option 1 (Local Development):
 - .NET 8 SDK
 - PostgreSQL 14+
 - FFmpeg
 
+Option 2 (Docker):
+- Docker
+- Docker Compose
+
 ### Installation
+
+#### Option 1: Local Development
 ```bash
 # Clone the repository
 git clone https://github.com/grinsteindavid/video-streaming-api.git
@@ -93,6 +100,9 @@ cd video-streaming-api
 # Install dependencies
 dotnet restore
 
+# Install EF Core tools if not already installed
+dotnet tool install --global dotnet-ef
+
 # Set up the database
 dotnet ef database update
 
@@ -100,13 +110,29 @@ dotnet ef database update
 dotnet run
 ```
 
-### Environment Variables
-Create a `.env` file with the following variables:
+#### Option 2: Docker Compose (Recommended)
+```bash
+# Clone the repository
+git clone https://github.com/grinsteindavid/video-streaming-api.git
+
+# Navigate to the project directory
+cd video-streaming-api
+
+# Start the services with Docker Compose
+docker-compose up -d
+
+# The API will be available at http://localhost:5000
 ```
-DB_CONNECTION_STRING=Host=localhost;Database=videostreaming;Username=postgres;Password=yourpassword
+
+### Environment Variables
+For local development, create a `.env` file with the following variables:
+```
+DB_CONNECTION_STRING=Host=localhost;Database=videostreaming;Username=postgres;Password=postgres
 STORAGE_PATH=/path/to/video/storage
 FFMPEG_PATH=/usr/bin/ffmpeg
 ```
+
+When using Docker, these variables are already configured in the docker-compose.yml file.
 
 ## License
 MIT
