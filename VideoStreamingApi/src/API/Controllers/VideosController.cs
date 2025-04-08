@@ -5,6 +5,9 @@ using VideoStreamingApi.Application.Queries.Videos;
 
 namespace VideoStreamingApi.API.Controllers
 {
+    /// <summary>
+    /// Controller for managing video metadata and content
+    /// </summary>
     [ApiController]
     [Route("api/videos")]
     public class VideosController : ControllerBase
@@ -18,8 +21,12 @@ namespace VideoStreamingApi.API.Controllers
             _logger = logger;
         }
 
-        // GET: api/videos
+        /// <summary>
+        /// Get all videos with optional filtering
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] List<string>? tags = null)
         {
             try
@@ -37,12 +44,17 @@ namespace VideoStreamingApi.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting videos");
-                return StatusCode(500, "An error occurred while retrieving videos");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving videos");
             }
         }
 
-        // GET: api/videos/{id}
+        /// <summary>
+        /// Get a specific video by ID
+        /// </summary>
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetById(Guid id)
         {
             try
@@ -58,13 +70,18 @@ namespace VideoStreamingApi.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting video {VideoId}", id);
-                return StatusCode(500, "An error occurred while retrieving the video");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving the video");
             }
         }
 
-        // POST: api/videos
+        /// <summary>
+        /// Create a new video (metadata only)
+        /// </summary>
         [HttpPost]
-        public async Task<IActionResult> Create([FromForm] CreateVideoCommand command)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Create([FromBody] CreateVideoCommand command)
         {
             try
             {
@@ -74,12 +91,99 @@ namespace VideoStreamingApi.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating video");
-                return StatusCode(500, "An error occurred while creating the video");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating the video");
             }
         }
 
-        // PUT: api/videos/{id}
+        /// <summary>
+        /// Upload a video file for an existing video
+        /// </summary>
+        [HttpPost("{id}/upload")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UploadVideo(Guid id, [FromForm] IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest("No file was uploaded");
+                }
+
+                var command = new UploadVideoFileCommand
+                {
+                    VideoId = id,
+                    VideoFile = file
+                };
+
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading video file for video {VideoId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploading the video file");
+            }
+        }
+
+        /// <summary>
+        /// Upload a thumbnail for an existing video
+        /// </summary>
+        [HttpPost("{id}/thumbnail")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UploadThumbnail(Guid id, [FromForm] IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest("No file was uploaded");
+                }
+
+                // Validate file type
+                var allowedTypes = new[] { "image/jpeg", "image/png", "image/jpg" };
+                if (!allowedTypes.Contains(file.ContentType.ToLower()))
+                {
+                    return BadRequest("Invalid file type. Only JPEG and PNG are allowed.");
+                }
+
+                var command = new UploadThumbnailCommand
+                {
+                    VideoId = id,
+                    ThumbnailFile = file
+                };
+
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading thumbnail for video {VideoId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploading the thumbnail");
+            }
+        }
+
+        /// <summary>
+        /// Update a video's metadata
+        /// </summary>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateVideoCommand command)
         {
             try
@@ -99,12 +203,17 @@ namespace VideoStreamingApi.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating video {VideoId}", id);
-                return StatusCode(500, "An error occurred while updating the video");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the video");
             }
         }
 
-        // DELETE: api/videos/{id}
+        /// <summary>
+        /// Delete a video
+        /// </summary>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(Guid id)
         {
             try
@@ -122,7 +231,7 @@ namespace VideoStreamingApi.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting video {VideoId}", id);
-                return StatusCode(500, "An error occurred while deleting the video");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while deleting the video");
             }
         }
     }

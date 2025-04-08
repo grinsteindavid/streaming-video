@@ -32,17 +32,21 @@ This is the backend API for our video streaming platform, built with C# and .NET
 - `id` (UUID) - Primary key
 - `title` (string) - Video title
 - `description` (text) - Video description
-- `duration` (int) - Duration in seconds
-- `upload_date` (timestamp) - When the video was uploaded
 - `status` (enum) - Processing status
 - `thumbnail_url` (string) - URL to thumbnail
 - `tags` (string[]) - Array of tags
+- `timestamp` (timestamp) - When the video was created
+- `is_featured` (boolean) - Whether the video is featured
+- `is_new` (boolean) - Whether the video is new
+
 
 ### VideoFiles
 - `id` (UUID) - Primary key
 - `video_id` (UUID) - Foreign key to Videos
 - `file_path` (string) - Path to HLS playlist
+- `duration` (int) - Duration in seconds
 - `size` (long) - File size in bytes
+- `timestamp` (timestamp) - When the file was created
 
 ### ViewStats
 - `id` (UUID) - Primary key

@@ -9,5 +9,7 @@ namespace VideoStreamingApi.Application.Commands.Videos
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public List<string> Tags { get; set; } = new List<string>();
+        public bool IsFeatured { get; set; }
+        public bool IsNew { get; set; }
     }
 }
