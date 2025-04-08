@@ -6000,19 +6000,19 @@
     ]
   },
   "packageFolders": {
-    "/root/.nuget/packages/": {}
+    "/Users/looper/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/src/VideoStreamingApi.csproj",
+      "projectUniqueName": "/Users/looper/workshop/video-streaming-mvp/VideoStreamingApi/VideoStreamingApi.csproj",
       "projectName": "VideoStreamingApi",
-      "projectPath": "/src/VideoStreamingApi.csproj",
-      "packagesPath": "/root/.nuget/packages/",
-      "outputPath": "/src/obj/",
+      "projectPath": "/Users/looper/workshop/video-streaming-mvp/VideoStreamingApi/VideoStreamingApi.csproj",
+      "packagesPath": "/Users/looper/.nuget/packages/",
+      "outputPath": "/Users/looper/workshop/video-streaming-mvp/VideoStreamingApi/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/root/.nuget/NuGet/NuGet.Config"
+        "/Users/looper/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -6105,7 +6105,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.407/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.407/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

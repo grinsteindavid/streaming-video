@@ -396,7 +396,6 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Project-specific ignores
-videos/
 .env
 
 # Docker persistent data

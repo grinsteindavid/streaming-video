@@ -11,15 +11,18 @@ namespace VideoStreamingApi.API.Controllers
         private readonly IVideoRepository _videoRepository;
         private readonly IConfiguration _configuration;
         private readonly ILogger<StreamingController> _logger;
+        private readonly VideoStreamingApi.Application.Services.Interfaces.IViewStatService _viewStatService;
 
         public StreamingController(
             IVideoRepository videoRepository,
             IConfiguration configuration,
-            ILogger<StreamingController> logger)
+            ILogger<StreamingController> logger,
+            VideoStreamingApi.Application.Services.Interfaces.IViewStatService viewStatService)
         {
             _videoRepository = videoRepository;
             _configuration = configuration;
             _logger = logger;
+            _viewStatService = viewStatService;
         }
 
         // GET: api/videos/{id}/streaming
@@ -82,7 +85,7 @@ namespace VideoStreamingApi.API.Controllers
                 }
 
                 // Record view statistic asynchronously (don't wait for it to complete)
-                _ = Task.Run(() => RecordViewStatAsync(id));
+                _ = Task.Run(() => _viewStatService.RecordViewAsync(id));
 
                 // Determine content type based on file extension
                 var contentType = filename.EndsWith(".m3u8") ? "application/vnd.apple.mpegurl" : "video/MP2T";
@@ -130,35 +133,6 @@ namespace VideoStreamingApi.API.Controllers
             }
         }
 
-        private async Task RecordViewStatAsync(Guid videoId)
-        {
-            try
-            {
-                var video = await _videoRepository.GetVideoWithDetailsAsync(videoId);
-                
-                if (video == null)
-                {
-                    return;
-                }
 
-                // Create view stat
-                var viewStat = new ViewStat
-                {
-                    Id = Guid.NewGuid(),
-                    VideoId = videoId,
-                    UserId = null, // Anonymous view
-                    Timestamp = DateTime.UtcNow,
-                    WatchDuration = 0 // Initial duration, would be updated later in a real app
-                };
-
-                video.ViewStats.Add(viewStat);
-                await _videoRepository.UpdateAsync(video);
-                await _videoRepository.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error recording view stat for video {VideoId}", videoId);
-            }
-        }
     }
 }
