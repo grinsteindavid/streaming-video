@@ -26,23 +26,6 @@ This is the backend API for our video streaming platform, built with C# and .NET
 - **Media Processing**: FFmpeg
 - **Storage**: File system for raw and processed videos
 
-## API Endpoints
-
-### Video Management
-- `POST /api/videos` - Upload a new video
-- `PUT /api/videos/{id}` - Update video metadata
-- `DELETE /api/videos/{id}` - Remove a video
-- `GET /api/videos` - List all videos with pagination and filtering
-- `GET /api/videos/{id}` - Get video details by ID
-
-### Video Streaming
-- `GET /api/videos/{id}/stream` - Stream video in HLS format
-- `GET /api/videos/{id}/subtitles/{language}` - Get subtitles
-- `GET /api/videos/{id}/subtitles` - Get all available subtitles
-
-### Analytics
-- `GET /api/analytics/videos/{id}` - Get video performance metrics
-
 ## Database Schema
 
 ### Videos
