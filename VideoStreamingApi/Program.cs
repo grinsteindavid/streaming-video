@@ -59,8 +59,86 @@ builder.Services.AddHealthChecks()
         }
 
         return directoryExists && isWritable 
-            ? Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy("Storage is accessible")
-            : Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Unhealthy("Storage is not accessible");
+            ? HealthCheckResult.Healthy("Storage is accessible")
+            : HealthCheckResult.Unhealthy("Storage is not accessible");
+    })
+    .AddCheck("FFmpeg", () => {
+        try
+        {
+            var ffmpegPath = builder.Configuration["FFMPEG_PATH"] ?? "/usr/bin/ffmpeg";
+            var fileExists = File.Exists(ffmpegPath);
+
+            // Try to execute ffmpeg -version to check if it's working
+            var isExecutable = false;
+            var version = "Unknown";
+
+            if (fileExists)
+            {
+                try
+                {
+                    var startInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = ffmpegPath,
+                        Arguments = "-version",
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+
+                    using (var process = System.Diagnostics.Process.Start(startInfo))
+                    {
+                        if (process != null)
+                        {
+                            version = process.StandardOutput.ReadLine() ?? "Unknown";
+                            process.WaitForExit(1000);
+                            isExecutable = process.ExitCode == 0;
+                        }
+                    }
+                }
+                catch
+                {
+                    isExecutable = false;
+                }
+            }
+
+            var data = new Dictionary<string, object>
+            {
+                { "Path", ffmpegPath },
+                { "Exists", fileExists },
+                { "Executable", isExecutable },
+                { "Version", version }
+            };
+
+            return fileExists && isExecutable 
+                ? HealthCheckResult.Healthy("FFmpeg is accessible", data: data)
+                : HealthCheckResult.Unhealthy("FFmpeg is not accessible", data: data);
+        }
+        catch (Exception ex)
+        {
+            return HealthCheckResult.Unhealthy($"Error checking FFmpeg: {ex.Message}");
+        }
+    })
+    .AddCheck("AppInfo", () => {
+        try
+        {
+            var assembly = System.Reflection.Assembly.GetEntryAssembly();
+            var version = assembly?.GetName().Version?.ToString() ?? "1.0.0";
+            var startTime = System.Diagnostics.Process.GetCurrentProcess().StartTime;
+            var uptime = DateTime.Now - startTime;
+
+            var data = new Dictionary<string, object>
+            {
+                { "Version", version },
+                { "StartTime", startTime.ToString("o") },
+                { "Uptime", $"{uptime.Days}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s" }
+            };
+
+            return HealthCheckResult.Healthy("Application is running", data: data);
+        }
+        catch (Exception ex)
+        {
+            return HealthCheckResult.Unhealthy($"Error retrieving application info: {ex.Message}");
+        }
     });
 
 
