@@ -58,6 +58,13 @@ This is the backend API for our video streaming platform, built with C# and .NET
 - `rating` (int) - Rating value (1-5)
 - `timestamp` (timestamp) - When the rating was given
 
+### Subtitles
+- `id` (UUID) - Primary key
+- `video_id` (UUID) - Foreign key to Videos
+- `language` (string) - Subtitle language code
+- `file_path` (string) - Path to subtitle file
+- `timestamp` (timestamp) - When the subtitle was created
+
 ## Getting Started
 
 ### Prerequisites
