@@ -146,6 +146,20 @@ builder.Services.AddHealthChecks()
         }
     });
 
+// Add Health Checks UI
+builder.Services.AddHealthChecksUI(options =>
+{
+    options.SetEvaluationTimeInSeconds(30); // Configures the UI to poll for health status every 30 seconds
+    options.MaximumHistoryEntriesPerEndpoint(50); // Maximum history entries per endpoint
+    options.SetApiMaxActiveRequests(1); // Maximum concurrent requests to the healthcheck API
+    
+    // Add the health check endpoint to the UI with the correct host name for Docker environment
+    // In Docker, services can communicate using their service names as hostnames
+    // The service name 'api' is defined in docker-compose.yml
+    options.AddHealthCheckEndpoint("Video Streaming API", "http://api:8080/health-check");
+})
+.AddInMemoryStorage(); // Use in-memory storage for the UI
+
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -191,10 +205,18 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Map health check endpoint with UI
+// Map health check endpoint with UI response writer
 app.MapHealthChecks("/health-check", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
+
+// Map Health Checks UI endpoints
+app.MapHealthChecksUI(options => 
+{
+    options.UIPath = "/health-ui"; // The UI will be available at /health-ui
+    options.ApiPath = "/health-ui-api"; // The API that the UI will use
+});
+
 
 app.Run();
