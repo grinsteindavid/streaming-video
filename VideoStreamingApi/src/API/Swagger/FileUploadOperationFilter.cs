@@ -35,14 +35,14 @@ namespace VideoStreamingApi.API.Swagger
                         {
                             Type = "object",
                             Properties = fileParameters.ToDictionary(
-                                p => p.Name,
+                                p => p.Name ?? string.Empty,
                                 p => new OpenApiSchema
                                 {
                                     Type = "string",
                                     Format = "binary"
                                 }
                             ),
-                            Required = new HashSet<string>(fileParameters.Select(p => p.Name))
+                            Required = new HashSet<string>(fileParameters.Select(p => p.Name ?? string.Empty).Where(name => !string.IsNullOrEmpty(name)))
                         }
                     }
                 },
