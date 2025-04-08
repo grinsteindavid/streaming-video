@@ -28,9 +28,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IVideoRepository, VideoRepository>();
 
-// Register services
-builder.Services.AddScoped<IViewStatService, ViewStatService>();
-
 // Register MediatR and handlers
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 

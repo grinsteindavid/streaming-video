@@ -1,7 +1,8 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using VideoStreamingApi.Application.Services.Interfaces;
+using VideoStreamingApi.Application.Commands.ViewStats;
 
 namespace VideoStreamingApi.API.Controllers
 {
@@ -12,19 +13,19 @@ namespace VideoStreamingApi.API.Controllers
     [Route("api/streaming/videos")]
     public class StreamingController : ControllerBase
     {
-        private readonly IViewStatService _viewStatService;
+        private readonly IMediator _mediator;
         private readonly ILogger<StreamingController> _logger;
 
         /// <summary>
         /// Initializes a new instance of the StreamingController
         /// </summary>
-        /// <param name="viewStatService">Service for managing video view statistics</param>
+        /// <param name="mediator">Mediator for handling commands</param>
         /// <param name="logger">Logger for the controller</param>
         public StreamingController(
-            IViewStatService viewStatService,
+            IMediator mediator,
             ILogger<StreamingController> logger)
         {
-            _viewStatService = viewStatService;
+            _mediator = mediator;
             _logger = logger;
         }
 
@@ -46,7 +47,20 @@ namespace VideoStreamingApi.API.Controllers
                     return BadRequest("Invalid video ID");
                 }
 
-                await _viewStatService.RecordViewAsync(videoId);
+                var command = new RecordVideoViewCommand
+                {
+                    VideoId = videoId,
+                    UserId = null, // Could be extracted from authenticated user in a real app
+                    WatchDuration = 0 // Initial duration, would be updated later in a real app
+                };
+
+                var result = await _mediator.Send(command);
+                
+                if (!result)
+                {
+                    return NotFound($"Video with ID {videoId} not found");
+                }
+
                 return NoContent();
             }
             catch (Exception ex)
