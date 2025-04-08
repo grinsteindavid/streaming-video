@@ -177,6 +177,57 @@ namespace VideoStreamingApi.API.Controllers
         }
 
         /// <summary>
+        /// Upload a subtitle file for an existing video
+        /// </summary>
+        [HttpPost("{id}/upload-subtitle")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UploadSubtitle(Guid id, [FromForm] string language, [FromForm] IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest("No file was uploaded");
+                }
+
+                if (string.IsNullOrWhiteSpace(language))
+                {
+                    return BadRequest("Language code is required");
+                }
+
+                // Validate file type
+                var allowedExtensions = new[] { ".vtt", ".srt", ".sbv" };
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(extension))
+                {
+                    return BadRequest($"Invalid file type. Allowed formats: {string.Join(", ", allowedExtensions)}");
+                }
+
+                var command = new UploadSubtitleCommand
+                {
+                    VideoId = id,
+                    Language = language,
+                    SubtitleFile = file
+                };
+
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading subtitle for video {VideoId}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while uploading the subtitle");
+            }
+        }
+
+        /// <summary>
         /// Update a video's metadata
         /// </summary>
         [HttpPut("{id}")]

@@ -1,7 +1,11 @@
-using VideoStreamingApi.Domain.Entities;
+using System;
+using System.Collections.Generic;
 
 namespace VideoStreamingApi.Application.DTOs
 {
+    /// <summary>
+    /// Data transfer object for video information
+    /// </summary>
     public class VideoDto
     {
         public Guid Id { get; set; }
@@ -12,6 +16,9 @@ namespace VideoStreamingApi.Application.DTOs
         public string Status { get; set; } = string.Empty;
         public string ThumbnailUrl { get; set; } = string.Empty;
         public List<string> Tags { get; set; } = new List<string>();
+        public bool IsFeatured { get; set; }
+        public bool IsNew { get; set; }
+        public List<string> SubtitleLanguages { get; set; } = new List<string>();
     }
 
     public class VideoDetailsDto : VideoDto
