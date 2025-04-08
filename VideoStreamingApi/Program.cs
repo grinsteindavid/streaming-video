@@ -14,7 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Configure Swagger
+builder.Services.AddSwaggerGen(options => 
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Video Streaming API", Version = "v1" });
+});
 
 // Configure database
 var connectionString = builder.Configuration["DB_CONNECTION_STRING"] ?? 
@@ -27,6 +32,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Register repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IVideoRepository, VideoRepository>();
+
+// Register services
+builder.Services.AddScoped<IVideoProcessingService, VideoProcessingService>();
 
 // Register MediatR and handlers
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));

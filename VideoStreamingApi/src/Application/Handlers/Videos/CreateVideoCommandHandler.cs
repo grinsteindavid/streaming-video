@@ -37,7 +37,7 @@ namespace VideoStreamingApi.Application.Handlers.Videos
                     Title = request.Title,
                     Description = request.Description,
                     Timestamp = DateTime.UtcNow,
-                    Status = VideoStatus.Created, // Initial status before file upload
+                    Status = VideoStatus.Uploading, // Initial status before file upload
                     Tags = request.Tags,
                     IsFeatured = request.IsFeatured,
                     IsNew = request.IsNew,

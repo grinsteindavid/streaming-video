@@ -50,7 +50,7 @@ namespace VideoStreamingApi.Application.Handlers.Videos
                     Title = v.Title,
                     Description = v.Description,
                     Duration = v.Duration,
-                    UploadDate = v.UploadDate,
+                    UploadDate = v.Timestamp,
                     Status = v.Status.ToString(),
                     ThumbnailUrl = v.ThumbnailUrl,
                     Tags = v.Tags

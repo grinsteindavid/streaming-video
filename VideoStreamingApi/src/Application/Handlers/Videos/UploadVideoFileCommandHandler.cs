@@ -7,27 +7,40 @@ using System.Threading;
 using System.Threading.Tasks;
 using VideoStreamingApi.Application.Commands.Videos;
 using VideoStreamingApi.Application.DTOs;
+using VideoStreamingApi.Application.Services.Interfaces;
 using VideoStreamingApi.Domain.Entities;
 using VideoStreamingApi.Domain.Interfaces;
 
 namespace VideoStreamingApi.Application.Handlers.Videos
 {
+    /// <summary>
+    /// Handler for uploading video files
+    /// </summary>
     public class UploadVideoFileCommandHandler : IRequestHandler<UploadVideoFileCommand, VideoDto>
     {
         private readonly IVideoRepository _videoRepository;
         private readonly IConfiguration _configuration;
+        private readonly IVideoProcessingService _videoProcessingService;
         private readonly ILogger<UploadVideoFileCommandHandler> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the UploadVideoFileCommandHandler class
+        /// </summary>
         public UploadVideoFileCommandHandler(
             IVideoRepository videoRepository,
             IConfiguration configuration,
+            IVideoProcessingService videoProcessingService,
             ILogger<UploadVideoFileCommandHandler> logger)
         {
             _videoRepository = videoRepository;
             _configuration = configuration;
+            _videoProcessingService = videoProcessingService;
             _logger = logger;
         }
 
+        /// <summary>
+        /// Handles the upload video file command
+        /// </summary>
         public async Task<VideoDto> Handle(UploadVideoFileCommand request, CancellationToken cancellationToken)
         {
             try
@@ -52,7 +65,7 @@ namespace VideoStreamingApi.Application.Handlers.Videos
                     await request.VideoFile.CopyToAsync(stream, cancellationToken);
                 }
 
-                // Create video file entity
+                // Create video file entity for the raw file
                 var videoFile = new VideoFile
                 {
                     Id = Guid.NewGuid(),
@@ -69,8 +82,9 @@ namespace VideoStreamingApi.Application.Handlers.Videos
                 await _videoRepository.UpdateAsync(video);
                 await _videoRepository.SaveChangesAsync();
 
-                // Start background processing (in a real app, this would be a background job)
-                _ = Task.Run(() => ProcessVideoAsync(video, rawFilePath));
+                // Start background processing using the VideoProcessingService
+                // This is done asynchronously to not block the response
+                _ = Task.Run(() => _videoProcessingService.ProcessVideoAsync(video, rawFilePath));
 
                 // Return DTO
                 return new VideoDto
@@ -84,62 +98,17 @@ namespace VideoStreamingApi.Application.Handlers.Videos
                     ThumbnailUrl = video.ThumbnailUrl,
                     Tags = video.Tags,
                     IsFeatured = video.IsFeatured,
-                    IsNew = video.IsNew
+                    IsNew = video.IsNew,
+                    SubtitleLanguages = video.Subtitles?.Select(s => s.Language).ToList() ?? new List<string>()
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error uploading video file");
+                _logger.LogError(ex, "Error uploading video file for video {VideoId}", request.VideoId);
                 throw;
             }
         }
 
-        private async Task ProcessVideoAsync(Video video, string rawFilePath)
-        {
-            try
-            {
-                // Update status to processing
-                video.Status = VideoStatus.Processing;
-                await _videoRepository.UpdateAsync(video);
-                await _videoRepository.SaveChangesAsync();
 
-                // In a real application, this would use FFmpeg to:
-                // 1. Generate thumbnail
-                // 2. Convert video to HLS format
-                // 3. Create multiple quality variants
-
-                // For now, we'll just simulate processing delay
-                await Task.Delay(5000);
-
-                // Update video with processing results
-                video.Status = VideoStatus.Ready;
-                video.Duration = 120; // Placeholder duration in seconds
-
-                // Add HLS playlist file
-                var hlsFile = new VideoFile
-                {
-                    Id = Guid.NewGuid(),
-                    VideoId = video.Id,
-                    FilePath = $"{Path.GetDirectoryName(rawFilePath)}/playlist.m3u8",
-                    Size = 1024, // Placeholder size
-                    Timestamp = DateTime.UtcNow
-                };
-
-                video.VideoFiles.Add(hlsFile);
-
-                // Save changes
-                await _videoRepository.UpdateAsync(video);
-                await _videoRepository.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing video {VideoId}", video.Id);
-                
-                // Update status to failed
-                video.Status = VideoStatus.Failed;
-                await _videoRepository.UpdateAsync(video);
-                await _videoRepository.SaveChangesAsync();
-            }
-        }
     }
 }

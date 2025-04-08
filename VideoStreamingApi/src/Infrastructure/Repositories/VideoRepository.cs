@@ -14,7 +14,7 @@ namespace VideoStreamingApi.Infrastructure.Repositories
         public async Task<IEnumerable<Video>> GetAllWithPaginationAsync(int pageNumber, int pageSize)
         {
             return await _dbSet
-                .OrderByDescending(v => v.UploadDate)
+                .OrderByDescending(v => v.Timestamp)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -24,7 +24,7 @@ namespace VideoStreamingApi.Infrastructure.Repositories
         {
             return await _dbSet
                 .Where(v => tags.Any(tag => v.Tags.Contains(tag)))
-                .OrderByDescending(v => v.UploadDate)
+                .OrderByDescending(v => v.Timestamp)
                 .ToListAsync();
         }
 

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using VideoStreamingApi.API.Models;
 using VideoStreamingApi.Application.Commands.Videos;
 using VideoStreamingApi.Application.Queries.Videos;
 
@@ -103,11 +104,12 @@ namespace VideoStreamingApi.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UploadVideo(Guid id, [FromForm] IFormFile file)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadVideo(Guid id, [FromForm] VideoUploadModel model)
         {
             try
             {
-                if (file == null || file.Length == 0)
+                if (model.File == null || model.File.Length == 0)
                 {
                     return BadRequest("No file was uploaded");
                 }
@@ -115,7 +117,7 @@ namespace VideoStreamingApi.API.Controllers
                 var command = new UploadVideoFileCommand
                 {
                     VideoId = id,
-                    VideoFile = file
+                    VideoFile = model.File
                 };
 
                 var result = await _mediator.Send(command);
@@ -135,23 +137,24 @@ namespace VideoStreamingApi.API.Controllers
         /// <summary>
         /// Upload a thumbnail for an existing video
         /// </summary>
-        [HttpPost("{id}/thumbnail")]
+        [HttpPost("{id}/upload-thumbnail")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UploadThumbnail(Guid id, [FromForm] IFormFile file)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadThumbnail(Guid id, [FromForm] ThumbnailUploadModel model)
         {
             try
             {
-                if (file == null || file.Length == 0)
+                if (model.File == null || model.File.Length == 0)
                 {
                     return BadRequest("No file was uploaded");
                 }
 
                 // Validate file type
                 var allowedTypes = new[] { "image/jpeg", "image/png", "image/jpg" };
-                if (!allowedTypes.Contains(file.ContentType.ToLower()))
+                if (!allowedTypes.Contains(model.File.ContentType.ToLower()))
                 {
                     return BadRequest("Invalid file type. Only JPEG and PNG are allowed.");
                 }
@@ -159,7 +162,7 @@ namespace VideoStreamingApi.API.Controllers
                 var command = new UploadThumbnailCommand
                 {
                     VideoId = id,
-                    ThumbnailFile = file
+                    ThumbnailFile = model.File
                 };
 
                 var result = await _mediator.Send(command);
@@ -184,23 +187,24 @@ namespace VideoStreamingApi.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UploadSubtitle(Guid id, [FromForm] string language, [FromForm] IFormFile file)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadSubtitle(Guid id, [FromForm] SubtitleUploadModel model)
         {
             try
             {
-                if (file == null || file.Length == 0)
+                if (model.File == null || model.File.Length == 0)
                 {
                     return BadRequest("No file was uploaded");
                 }
 
-                if (string.IsNullOrWhiteSpace(language))
+                if (string.IsNullOrWhiteSpace(model.Language))
                 {
                     return BadRequest("Language code is required");
                 }
 
                 // Validate file type
                 var allowedExtensions = new[] { ".vtt", ".srt", ".sbv" };
-                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                var extension = Path.GetExtension(model.File.FileName).ToLowerInvariant();
                 if (!allowedExtensions.Contains(extension))
                 {
                     return BadRequest($"Invalid file type. Allowed formats: {string.Join(", ", allowedExtensions)}");
@@ -209,8 +213,8 @@ namespace VideoStreamingApi.API.Controllers
                 var command = new UploadSubtitleCommand
                 {
                     VideoId = id,
-                    Language = language,
-                    SubtitleFile = file
+                    Language = model.Language,
+                    SubtitleFile = model.File
                 };
 
                 var result = await _mediator.Send(command);
