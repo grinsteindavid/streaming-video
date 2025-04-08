@@ -6,6 +6,8 @@ using HealthChecks.UI.Client;
 using VideoStreamingApi.Domain.Interfaces;
 using VideoStreamingApi.Infrastructure.Data;
 using VideoStreamingApi.Infrastructure.Repositories;
+using VideoStreamingApi.Application.Services.Interfaces;
+using VideoStreamingApi.Application.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,13 +23,13 @@ var connectionString = builder.Configuration["DB_CONNECTION_STRING"] ??
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+
 // Register repositories
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IVideoRepository, VideoRepository>();
 
 // Register services
-builder.Services.AddScoped<VideoStreamingApi.Application.Services.Interfaces.IViewStatService, VideoStreamingApi.Application.Services.Implementations.ViewStatService>();
-builder.Services.AddScoped<VideoStreamingApi.Application.Services.Interfaces.IHealthCheckService, VideoStreamingApi.Application.Services.Implementations.HealthCheckService>();
+builder.Services.AddScoped<IViewStatService, ViewStatService>();
 
 // Register MediatR and handlers
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
@@ -107,7 +109,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // Map health check endpoint with UI
-app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+app.MapHealthChecks("/health-check", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
