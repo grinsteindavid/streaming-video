@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # Video Streaming API
+  api:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${PROJECT_NAME}-${ENVIRONMENT}-api:latest
+    container_name: video-streaming-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DB_CONNECTION_STRING=${DB_CONNECTION_STRING}
+      - STORAGE_PATH=/app/videos
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - CLOUDFRONT_DOMAIN=${CLOUDFRONT_DOMAIN}
+    ports:
+      - "8080:8080"
+    volumes:
+      - video_data:/app/videos
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-group: "/ecs/${PROJECT_NAME}-${ENVIRONMENT}-api"
+        awslogs-region: "${AWS_REGION}"
+        awslogs-stream-prefix: "ecs"
+
+  # Admin Panel (Next.js)
+  admin-panel:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${PROJECT_NAME}-${ENVIRONMENT}-admin:latest
+    container_name: video-streaming-admin
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://${API_DOMAIN}/api
+    ports:
+      - "3001:3000"
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-group: "/ecs/${PROJECT_NAME}-${ENVIRONMENT}-admin-panel"
+        awslogs-region: "${AWS_REGION}"
+        awslogs-stream-prefix: "ecs"
+
+  # Landing Page (Next.js)
+  landing-page:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${PROJECT_NAME}-${ENVIRONMENT}-landing:latest
+    container_name: video-streaming-landing
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://${API_DOMAIN}/api
+      - NEXT_PUBLIC_CLOUDFRONT_DOMAIN=${CLOUDFRONT_DOMAIN}
+    ports:
+      - "3000:3000"
+    logging:
+      driver: "awslogs"
+      options:
+        awslogs-group: "/ecs/${PROJECT_NAME}-${ENVIRONMENT}-landing-page"
+        awslogs-region: "${AWS_REGION}"
+        awslogs-stream-prefix: "ecs"
+
+volumes:
+  video_data:

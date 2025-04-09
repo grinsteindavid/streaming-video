@@ -40,6 +40,13 @@ module "database" {
   ecs_security_group_id = module.networking.ecs_tasks_security_group_id
 }
 
+# Create ECR repositories for Docker images
+module "ecr" {
+  source       = "./modules/ecr"
+  project_name = var.project_name
+  environment  = var.environment
+}
+
 # Create ECS Fargate cluster and services for API, landing page, and admin panel
 module "api" {
   source           = "./modules/api"
@@ -56,4 +63,7 @@ module "api" {
   db_secret_arn    = module.database.db_secret_arn
   s3_bucket_name   = module.storage.s3_bucket_name
   cloudfront_domain = module.cdn.cloudfront_domain
+  api_image        = module.ecr.api_repository_url
+  landing_page_image = module.ecr.landing_page_repository_url
+  admin_panel_image = module.ecr.admin_panel_repository_url
 }

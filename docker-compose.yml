@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: video-streaming-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: video_streaming
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - video-streaming-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Video Streaming API
+  api:
+    image: video-streaming-api:local
+    container_name: video-streaming-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DB_CONNECTION_STRING=Host=postgres;Database=video_streaming;Username=postgres;Password=postgres
+      - STORAGE_PATH=/app/videos
+      - S3_BUCKET_NAME=local-video-storage
+      - CLOUDFRONT_DOMAIN=localhost
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./VideoStreamingApi:/app
+      - video_data:/app/videos
+    networks:
+      - video-streaming-network
+
+  # Admin Panel (Next.js)
+  admin-panel:
+    image: video-streaming-admin:local
+    container_name: video-streaming-admin
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8080/api
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./admin-panel:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - video-streaming-network
+    depends_on:
+      - api
+
+  # Landing Page (Next.js)
+  landing-page:
+    image: video-streaming-landing:local
+    container_name: video-streaming-landing
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8080/api
+      - NEXT_PUBLIC_CLOUDFRONT_DOMAIN=localhost
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./landing-page:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - video-streaming-network
+    depends_on:
+      - api
+
+networks:
+  video-streaming-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  video_data:

@@ -1,0 +1,29 @@
+# Development Dockerfile for Admin Panel
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json* ./
+
+# Install dependencies
+RUN npm ci
+
+# Development image, keep all files
+FROM base AS development
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Start development server
+CMD ["npm", "run", "dev"]
