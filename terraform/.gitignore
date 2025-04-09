@@ -1,0 +1,70 @@
+# Local .terraform directories
+.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, which are likely to contain sensitive data
+*.tfvars
+*.tfvars.json
+
+# Ignore override files as they are usually used for local development
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Ignore lock files
+.terraform.lock.hcl
+
+# Ignore .env files which might contain secrets
+.env
+*.env
+
+# Ignore any local backup files
+*.backup
+*.bak
+*.swp
+*.swo
+
+# Ignore IDE and editor files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Ignore OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore logs
+*.log
+
+# Ignore compiled binaries
+*.dll
+*.exe
+*.o
+*.so
+
+# Ignore package manager directories
+node_modules/
+packages/
+vendor/
+
+# Ignore generated files for C# projects
+bin/
+obj/
